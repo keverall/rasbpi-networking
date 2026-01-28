@@ -1,0 +1,35 @@
+.DS_Store
+*.pyc
+*.swp
+__pycache__
+.cache
+.pytest_cache
+.tox
+.eggs
+*.egg-info
+.idea/
+*.iml
+.vscode/
+.venv/
+.fleet/
+.cache/
+
+# Pi-hole runtime, backups and secrets
+pi-hole/.env
+pi-hole/etc-pihole/*.db
+pi-hole/etc-pihole/*.db-*
+pi-hole/etc-pihole/*.pem
+pi-hole/etc-pihole/*.crt
+pi-hole/etc-pihole/cli_pw
+pi-hole/etc-pihole/dhcp.leases
+pi-hole/etc-pihole/hosts/
+pi-hole/etc-pihole/gravity_backups/
+pi-hole/etc-pihole/config_backups/
+pi-hole/etc-pihole/listsCache/
+pi-hole/etc-pihole/migration_backup/
+pi-hole/etc-pihole/logrotate
+
+# Ignore generated TLS and cert files if present
+*.key
+*.crt
+*.pem
