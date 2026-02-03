@@ -1,0 +1,18 @@
+[1770081460] unbound[1:0] warning: root hints root.hints: no NS content
+[1770081460] unbound[1:0] notice: init module 0: validator
+[1770081460] unbound[1:0] notice: init module 1: iterator
+[1770081460] unbound[1:0] info: start of service (unbound 1.22.0).
+[1770085389] unbound[1:0] info: service stopped (unbound 1.22.0).
+[1770085389] unbound[1:0] info: server stats for thread 0: 0 queries, 0 answers from cache, 0 recursions, 0 prefetch, 0 rejected by ip ratelimiting
+[1770085389] unbound[1:0] info: server stats for thread 0: requestlist max 0 avg 0 exceeded 0 jostled 0
+[1770085389] unbound[1:0] info: server stats for thread 1: 0 queries, 0 answers from cache, 0 recursions, 0 prefetch, 0 rejected by ip ratelimiting
+[1770085389] unbound[1:0] info: server stats for thread 1: requestlist max 0 avg 0 exceeded 0 jostled 0
+[1770085391] unbound[1:0] warning: root hints root.hints: no NS content
+[1770085391] unbound[1:0] notice: init module 0: validator
+[1770085391] unbound[1:0] notice: init module 1: iterator
+[1770085391] unbound[1:0] info: start of service (unbound 1.22.0).
+[1770110452] unbound[1:0] info: service stopped (unbound 1.22.0).
+[1770110452] unbound[1:0] info: server stats for thread 0: 0 queries, 0 answers from cache, 0 recursions, 0 prefetch, 0 rejected by ip ratelimiting
+[1770110452] unbound[1:0] info: server stats for thread 0: requestlist max 0 avg 0 exceeded 0 jostled 0
+[1770110452] unbound[1:0] info: server stats for thread 1: 0 queries, 0 answers from cache, 0 recursions, 0 prefetch, 0 rejected by ip ratelimiting
+[1770110452] unbound[1:0] info: server stats for thread 1: requestlist max 0 avg 0 exceeded 0 jostled 0
