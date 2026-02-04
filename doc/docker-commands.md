@@ -2,6 +2,10 @@
 
 docker compose -f pi-hole/docker-compose.yml ps --services --filter status=running
 
+Restart all containers -
+
+cd pi-hole && (docker compose restart pihole || docker-compose restart pihole || docker restart pihole) && docker ps --filter "name=pihole" --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}" && docker logs --tail 200 pihole
+
 docker run --rm local/unbound_exporter:latest --help
 
 Usage of /usr/local/bin/unbound_exporter:

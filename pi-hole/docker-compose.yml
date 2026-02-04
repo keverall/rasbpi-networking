@@ -19,6 +19,8 @@ services:
       - ./etc-dnsmasq.d:/etc/dnsmasq.d
     cap_add:
       - NET_ADMIN
+      - SYS_TIME
+      - SYS_NICE
     restart: unless-stopped
 
   unbound:
@@ -51,7 +53,7 @@ services:
     image: local/unbound_exporter:latest
     # Expose exporter on host loopback so Prometheus (host network) can scrape it
     ports:
-      - "127.0.0.1:9167:9167"
+      - "0.0.0.0:9167:9167"
     # Mount the unbound config so the exporter can access server certs/keys when they are generated
     volumes:
       - ./unbound:/etc/unbound:ro
@@ -84,15 +86,30 @@ services:
     restart: unless-stopped
 
   pihole_exporter:
-    # Temporarily replace the legacy exporter with an inert container to stop
-    # invalid API requests while we migrate to a v6-compatible exporter.
-    # Replace this service with a maintained v6-aware exporter (or build
-    # a custom exporter) before re-enabling metrics scraping.
-    image: busybox:1.36
+    image: ekofr/pihole-exporter:latest
     container_name: pihole_exporter
     network_mode: host
-    command: ["sh", "-c", "sleep 9999999"]
+    environment:
+      PIHOLE_HOSTNAME: "127.0.0.1"
+      PIHOLE_API: "${PIHOLE_API}"
+      PORT: "9617"
     restart: unless-stopped
+
+  node_exporter:
+    image: prom/node-exporter:latest
+    container_name: node_exporter
+    network_mode: host
+    pid: "host"
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - --path.procfs=/host/proc
+      - --path.sysfs=/host/sys
+      - --collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($|/)
+
     # Recommended replacement (example):
     # Uncomment and adjust the block below to switch to a maintained exporter
     # that supports Pi-hole v6. Replace PIHOLE_API with a short-lived API token
@@ -108,3 +125,34 @@ services:
     #     PIHOLE_API: "REPLACE_WITH_PIHOLE_API_TOKEN"
     #     PORT: 9617
     #   restart: unless-stopped
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+
+  raspi_exporter:
+    build:
+      context: ./raspi-exporter
+    image: local/raspi_exporter:latest
+    container_name: raspi_exporter
+    network_mode: host
+    restart: unless-stopped
+    # Some systems expose vcgencmd and video core under /opt/vc; if your host
+    # already has /usr/bin/vcgencmd available then you don't need /dev/vchiq
+    # or /opt/vc mounted. The service will detect vcgencmd in common paths.
+    #devices:
+    #  - /dev/vchiq:/dev/vchiq
+    volumes:
+      # Bind the host vcgencmd binary if available so the exporter can run it
+      # inside the container. On many Raspberry Pi images vcgencmd lives at /usr/bin/vcgencmd.
+      - /usr/bin/vcgencmd:/usr/bin/vcgencmd:ro
+      - /opt/vc:/opt/vc:ro
+    environment:
+      - PORT=9779
