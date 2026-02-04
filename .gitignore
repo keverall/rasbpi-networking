@@ -14,8 +14,7 @@ __pycache__
 .venv/
 .fleet/
 .cache/
-50{print
-20{print
+# stray files accidentally added to .gitignore; remove the literal lines that look like malformed paste
 pi-hole/grafana/
 # Pi-hole runtime, backups and secrets
 pi-hole/.env
