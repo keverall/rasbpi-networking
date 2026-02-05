@@ -1,7 +1,7 @@
 # Pi-hole configuration file (v6.4.1)
 # Encoding: UTF-8
 # This file is managed by pihole-FTL
-# Last updated on 2026-02-03 13:55:25 GMT
+# Last updated on 2026-02-05 00:49:18 GMT
 
 [dns]
   # Upstream DNS Servers to be used by Pi-hole. If this is not set, Pi-hole will not
@@ -355,7 +355,7 @@
     #
     # Allowed values are:
     #     true or false
-    active = true
+    active = false ### CHANGED, default = true
 
     # How should FTL reply to blocked queries?
     #
@@ -1132,7 +1132,7 @@
     #
     # Allowed values are:
     #     A valid Pi-hole password hash
-    app_pwhash = ""
+    app_pwhash = "$BALLOON-SHA256$v=1$s=1024,t=32$nQUtvPM+oFN9mcHNOXuU6A==$7pQhFvrW5cKbj6mAWmxukfu7moVIR5Zv+SjqG04g4O8=" ### CHANGED, default = ""
 
     # Should application password API sessions be allowed to modify config settings?
     #
@@ -1672,6 +1672,6 @@
   all = false
 
 # Configuration statistics:
-# 162 total entries out of which 159 entries are default
-# --> 3 entries are modified
+# 162 total entries out of which 157 entries are default
+# --> 5 entries are modified
 

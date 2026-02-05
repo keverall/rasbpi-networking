@@ -2,6 +2,13 @@
 
 docker compose -f pi-hole/docker-compose.yml ps --services --filter status=running
 
+Get new Pi hole API key using pss   =
+
+
+docker exec pihole /bin/sh -lc 'rm -f /tmp/pihole.cookies /tmp/login.json /tmp/app.json ; curl -k -s -c /tmp/pihole.cookies -H "Host: pi.hole" -H "Content-Type: application/json" -X POST "https://127.0.0.1/api/auth" -d '\''{"password":"udxn8_Bg22W-6_n"}'\'' -o /tmp/login.json ; echo "---LOGIN JSON---" ; cat /tmp/login.json ; csrf=$(sed -n '\''s/.*"csrf":"\([^\"]*\)".*/\1/p'\'' /tmp/login.json) ; echo "---CSRF---:$csrf" ; curl -k -s -b /tmp/pihole.cookies -H "Host: pi.hole" -H "X-CSRF-TOKEN: $csrf" "https://127.0.0.1/api/auth/app" -o /tmp/app.json ; echo "---APP JSON---" ; cat /tmp/app.json || true'
+
+
+
 Restart all containers -
 
 cd pi-hole && (docker compose restart pihole || docker-compose restart pihole || docker restart pihole) && docker ps --filter "name=pihole" --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}" && docker logs --tail 200 pihole

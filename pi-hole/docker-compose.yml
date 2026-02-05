@@ -11,6 +11,7 @@ services:
     environment:
       TZ: "${TZ}"
       WEBPASSWORD: "${WEBPASSWORD}"
+      FTLCONF_webserver_api_password: "${WEBPASSWORD}"
       DNS1: "127.0.0.1#5335"
       DNS2: "no"
       SERVERIP: "${SERVERIP}"
@@ -90,7 +91,10 @@ services:
     container_name: pihole_exporter
     network_mode: host
     environment:
-      PIHOLE_HOSTNAME: "127.0.0.1"
+      # Use the webserver domain so requests carry the expected Host header
+      # (Pi-hole webserver config sets domain=pi.hole). Some exporters use
+      # this hostname to construct requests and set the Host header.
+      PIHOLE_HOSTNAME: "pi.hole"
       PIHOLE_API: "${PIHOLE_API}"
       PORT: "9617"
     restart: unless-stopped
