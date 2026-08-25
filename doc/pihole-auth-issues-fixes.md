@@ -24,15 +24,15 @@
 ### Concrete verification steps that work 
 
 1) Preferred (scripted/non-browser) — use header SID
-   - Get sid:
-     - SID=$(curl -s -X POST "http://127.0.0.1/api/auth" -H "Content-Type: application/json" -d '{"password":"udxn8_Bg22W-6_n"}' | jq -r .session.sid)
+   - Get sid (do NOT paste the real password into docs; use an env var at runtime):
+     - SID=$(curl -s -X POST "http://127.0.0.1/api/auth" -H "Content-Type: application/json" -d '{"password":"<REDACTED_PASSWORD>"}' | jq -r .session.sid)
    - Call another endpoint:
      - curl -s -H "X-FTL-SID: $SID" "http://127.0.0.1/api/queries" | jq .
 
 2) Preferred (browser-like, cookie+CSRF) — ensure Host matches webserver.domain:
-   - Use the host name Pi-hole expects (pi.hole). From the host machine use curl's --resolve to map the domain to 127.0.0.1 so cookie domain matches:
-     - curl -s -c cookies.txt --resolve pi.hole:80:127.0.0.1 -H "Content-Type: application/json" -X POST "http://pi.hole/api/auth" -d '{"password":"udxn8_Bg22W-6_n"}' -o login.json
-     - parse CSRF from login.json: CSRF=$(jq -r .session.csrf login.json)
+  - Use the host name Pi-hole expects (pi.hole). From the host machine use curl's --resolve to map the domain to 127.0.0.1 so cookie domain matches:
+    - curl -s -c cookies.txt --resolve pi.hole:80:127.0.0.1 -H "Content-Type: application/json" -X POST "http://pi.hole/api/auth" -d '{"password":"<REDACTED_PASSWORD>"}' -o login.json
+    - parse CSRF from login.json: CSRF=$(jq -r .session.csrf login.json)
      - call endpoint: curl -s -b cookies.txt --resolve pi.hole:80:127.0.0.1 -H "X-CSRF-TOKEN: $CSRF" "http://pi.hole/api/queries" | jq .
 
 - Explanation: your Pi-hole pihole.toml sets webserver.domain = "pi.hole" (see [`pi-hole/etc-pihole/pihole.toml OR toml()`](pi-hole/etc-pihole/pihole.toml:831)), so the cookie domain (sid cookie) is set for pi.hole. Authenticating with Host 127.0.0.1 and then calling endpoints on 127.0.0.1 will not attach the cookie, causing 401. Using X-FTL-SID bypasses cookie requirements, but my test attempts showed X-FTL-SID calls returning Unauthorized — likely because the sid captured belonged to a different session cookie or the initial POST used incorrect Host header context. Using --resolve with pi.hole ensures the Host header, the cookie domain and the server domain align.
@@ -75,7 +75,7 @@
 3. Exact verification I ran (successful)
 
 - Login (store cookie, get sid+csrf):
-  ```curl -s -c /tmp/pihole_cookies --resolve pi.hole:80:127.0.0.1 -H "Content-Type: application/json" -X POST "http://pi.hole/api/auth" --data-raw '{"password":"udxn8_Bg22W-6_n"}' -o /tmp/pihole_login.json```
+  ```curl -s -c /tmp/pihole_cookies --resolve pi.hole:80:127.0.0.1 -H "Content-Type: application/json" -X POST "http://pi.hole/api/auth" --data-raw '{"password":"<REDACTED_PASSWORD>"}' -o /tmp/pihole_login.json```
   - Response contained session.sid and session.csrf.
 - Query using cookie + CSRF (Host: pi.hole):
   ```curl -s -b /tmp/pihole_cookies --resolve pi.hole:80:127.0.0.1 -H "X-CSRF-TOKEN: <csrf>" "http://pi.hole/api/queries" -w "\nHTTP_STATUS:%{http_code}\n"```
@@ -104,7 +104,7 @@ Use the commands below on the Pi host to reproduce the successful login and call
 curl -s -c /tmp/pihole_cookies --resolve pi.hole:80:127.0.0.1 \
   -H "Content-Type: application/json" \
   -X POST "http://pi.hole/api/auth" \
-  --data-raw '{"password":"udxn8_Bg22W-6_n"}' \
+  --data-raw '{"password":"<REDACTED_PASSWORD>"}' \
   -o /tmp/pihole_login.json
 
 # 2) Extract SID and CSRF
