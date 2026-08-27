@@ -25,33 +25,40 @@ ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker co
 Rebuilds all custom images from Dockerfiles.
 
 ```bash
+# Build all images at once
+ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker compose build"
+```
+
+Or individually:
+
+```bash
 # Pi-hole (arm64)
-ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker buildx build --platform linux/arm64 -t local/pihole:arm64 ."
+ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker compose build pihole"
 
 # Unbound 1.26.0 (compiled from source)
-ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker build -f Dockerfile.unbound -t local/unbound-rpi:1.26.0 ."
+ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker compose build unbound"
 
 # Raspberry Pi Exporter (vcgencmd wrapper)
-ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker build -f raspi-exporter/Dockerfile -t local/raspi_exporter:latest ./raspi-exporter"
+ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker compose build raspi_exporter"
 
 # Unbound Exporter
-ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker build -f unbound-exporter/Dockerfile -t local/unbound_exporter:latest ./unbound-exporter"
+ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker compose build unbound_exporter"
 ```
 
 ## Rebuild and Restart Single Service
 
 ```bash
 # Pi-hole
-ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker buildx build --platform linux/arm64 -t local/pihole:arm64 . && docker compose up -d --no-deps --force-recreate pihole"
+ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker compose up -d --no-deps --build pihole"
 
 # Unbound
-ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker build -f Dockerfile.unbound -t local/unbound-rpi:1.26.0 . && docker compose up -d --no-deps --force-recreate unbound"
+ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker compose up -d --no-deps --build unbound"
 
 # Raspi Exporter
-ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker build -f raspi-exporter/Dockerfile -t local/raspi_exporter:latest ./raspi-exporter && docker compose up -d --no-deps --force-recreate raspi_exporter"
+ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker compose up -d --no-deps --build raspi_exporter"
 
 # Unbound Exporter
-ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker build -f unbound-exporter/Dockerfile -t local/unbound_exporter:latest ./unbound-exporter && docker compose up -d --no-deps --force-recreate unbound_exporter"
+ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker compose up -d --no-deps --build unbound_exporter"
 ```
 
 ## Verify Services
@@ -124,6 +131,6 @@ ssh pi-networking@192.168.1.5 "docker container prune -f"
 | Prometheus | prom/prometheus:latest | 3.14.0 |
 | Grafana | grafana/grafana:latest | 13.2.0 |
 | Node Exporter | prom/node-exporter:latest | latest |
-| Unbound Exporter | local/unbound_exporter:latest | local build |
-| Raspi Exporter | local/raspi_exporter:latest | local build |
+| Unbound Exporter | local/unbound_exporter:latest | latest (Go 1.25) |
+| Raspi Exporter | local/raspi_exporter:latest | Python 3.11 |
 | Pi-hole Exporter | ekofr/pihole-exporter:latest | latest |
