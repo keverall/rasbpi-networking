@@ -12,18 +12,46 @@ ssh pi-networking@192.168.1.5
 ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no -o BatchMode=yes pi-networking@192.168.1.5 "hostname"
 ```
 
-## Update All Images
+## Update Upstream Images
+
+Pulls latest versions of externally hosted images (Prometheus, Grafana, Node Exporter, cAdvisor, Pi-hole Exporter).
 
 ```bash
 ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker compose pull && docker compose up -d"
 ```
 
-## Rebuild Custom Unbound Image (1.26.0)
+## Rebuild All Local Images
 
-The Unbound image is compiled from source since the Alpine package is outdated.
+Rebuilds all custom images from Dockerfiles.
 
 ```bash
+# Pi-hole (arm64)
+ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker buildx build --platform linux/arm64 -t local/pihole:arm64 ."
+
+# Unbound 1.26.0 (compiled from source)
+ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker build -f Dockerfile.unbound -t local/unbound-rpi:1.26.0 ."
+
+# Raspberry Pi Exporter (vcgencmd wrapper)
+ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker build -f raspi-exporter/Dockerfile -t local/raspi_exporter:latest ./raspi-exporter"
+
+# Unbound Exporter
+ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker build -f unbound-exporter/Dockerfile -t local/unbound_exporter:latest ./unbound-exporter"
+```
+
+## Rebuild and Restart Single Service
+
+```bash
+# Pi-hole
+ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker buildx build --platform linux/arm64 -t local/pihole:arm64 . && docker compose up -d --no-deps --force-recreate pihole"
+
+# Unbound
 ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker build -f Dockerfile.unbound -t local/unbound-rpi:1.26.0 . && docker compose up -d --no-deps --force-recreate unbound"
+
+# Raspi Exporter
+ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker build -f raspi-exporter/Dockerfile -t local/raspi_exporter:latest ./raspi-exporter && docker compose up -d --no-deps --force-recreate raspi_exporter"
+
+# Unbound Exporter
+ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker build -f unbound-exporter/Dockerfile -t local/unbound_exporter:latest ./unbound-exporter && docker compose up -d --no-deps --force-recreate unbound_exporter"
 ```
 
 ## Verify Services
@@ -42,7 +70,7 @@ ssh pi-networking@192.168.1.5 "docker exec cadvisor /usr/bin/cadvisor --version 
 ssh pi-networking@192.168.1.5 "docker exec pihole pihole -v 2>&1 | head -1"
 
 # DNS resolution test
-ssh pi-networking@192.168.1.5 "docker exec pihole nslookup google.com"
+ssh pi-networking@192.168.1.5 "docker exec pihole nslookup google.com 127.0.0.1"
 
 # Prometheus targets
 ssh pi-networking@192.168.1.5 "curl -s http://127.0.0.1:9090/api/v1/targets | python3 -c 'import sys,json; d=json.load(sys.stdin); [print(f\"  {t[\"labels\"][\"job\"]}: {t[\"health\"]}\") for t in d[\"data\"][\"activeTargets\"]]'"
@@ -77,6 +105,15 @@ ssh pi-networking@192.168.1.5 "docker image prune -f"
 ssh pi-networking@192.168.1.5 "docker container prune -f"
 ```
 
+## Dockerfiles Reference
+
+| Dockerfile | Image | Description |
+|------------|-------|-------------|
+| `pi-hole/Dockerfile` | local/pihole:arm64 | Pi-hole for Raspberry Pi 5 (arm64) |
+| `pi-hole/Dockerfile.unbound` | local/unbound-rpi:1.26.0 | Unbound DNS resolver 1.26.0 (compiled from source) |
+| `pi-hole/raspi-exporter/Dockerfile` | local/raspi_exporter:latest | Raspberry Pi metrics exporter (vcgencmd wrapper) |
+| `pi-hole/unbound-exporter/Dockerfile` | local/unbound_exporter:latest | Unbound metrics exporter |
+
 ## Current Image Versions
 
 | Service | Image | Version |
@@ -89,3 +126,4 @@ ssh pi-networking@192.168.1.5 "docker container prune -f"
 | Node Exporter | prom/node-exporter:latest | latest |
 | Unbound Exporter | local/unbound_exporter:latest | local build |
 | Raspi Exporter | local/raspi_exporter:latest | local build |
+| Pi-hole Exporter | ekofr/pihole-exporter:latest | latest |
