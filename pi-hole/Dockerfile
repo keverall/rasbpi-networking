@@ -1,5 +1,5 @@
 ARG TARGETARCH=arm64
-FROM --platform=linux/${TARGETARCH} pihole/pihole:latest
+FROM --platform=linux/${TARGETARCH} pihole/pihole:2026.07.0
 
 LABEL maintainer="You <you@example.com>"
 ARG BUILD_DATE
@@ -17,4 +17,3 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
 # The official pihole/pihole image already provides the services and
 # entrypoint. This Dockerfile forces an aarch64 base and adds build-time
 # metadata so you can build a locally optimized image for Raspberry Pi 5.
-
