@@ -49,7 +49,7 @@ def run_vcgencmd(path, args):
     try:
         out = subprocess.check_output([path] + args, stderr=subprocess.DEVNULL)
         return out.decode().strip()
-    except Exception:
+    except subprocess.CalledProcessError:
         return None
 
 
@@ -115,7 +115,7 @@ def parse_throttled(s):
     if s.startswith("throttled="):
         try:
             return int(s.split("=")[1], 16)
-        except Exception:
+        except ValueError:
             return 0
     return 0
 
@@ -170,7 +170,7 @@ def main(port):
 
 if __name__ == "__main__":
     try:
-        port = int(sys.argv[1]) if len(sys.argv) > 1 else int(os.environ.get("PORT", "9779"))
-    except Exception:
-        port = 9779
-    main(port)
+        listen_port = int(sys.argv[1]) if len(sys.argv) > 1 else int(os.environ.get("PORT", "9779"))
+    except ValueError:
+        listen_port = 9779
+    main(listen_port)

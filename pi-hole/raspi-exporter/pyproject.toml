@@ -1,0 +1,9 @@
+[project]
+name = "raspi-exporter"
+version = "1.0.0"
+dependencies = [
+    "prometheus_client",
+]
+
+[tool.ruff]
+line-length = 120
