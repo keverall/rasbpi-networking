@@ -25,6 +25,9 @@ services:
     restart: unless-stopped
 
   unbound:
+    build:
+      context: .
+      dockerfile: Dockerfile.unbound
     image: local/unbound-rpi:1.26.0
     container_name: unbound
     # Run in bridge mode and bind only to host loopback so it doesn't conflict with Pi-hole on :53
