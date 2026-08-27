@@ -1,0 +1,23 @@
+FROM alpine:3.20
+
+RUN apk add --no-cache \
+    unbound \
+    unbound-doc \
+    ca-certificates \
+    tzdata \
+    && rm -rf /var/cache/apk/*
+
+RUN addgroup -g 1000 _unbound 2>/dev/null || true
+RUN adduser -S -u 1000 -G _unbound _unbound 2>/dev/null || true
+
+RUN mkdir -p /opt/unbound/etc/unbound /opt/unbound/var/log \
+    && chown -R _unbound:_unbound /opt/unbound
+
+COPY unbound/unbound.conf /opt/unbound/etc/unbound/unbound.conf
+COPY unbound/entrypoint.sh /entrypoint.sh
+
+RUN chmod +x /entrypoint.sh
+
+EXPOSE 53/tcp 53/udp 5335/tcp 5335/udp 8953/tcp 8953/udp
+
+ENTRYPOINT ["/entrypoint.sh"]

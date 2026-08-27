@@ -17,7 +17,7 @@
 #                       WITHIN /etc/dnsmasq.d/yourname.conf                      #
 #    (make sure misc.etc_dnsmasq_d is set to true in /etc/pihole/pihole.toml)    #
 #                                                                                #
-#                      Last updated: 2026-08-27 01:26:10 BST                     #
+#                      Last updated: 2026-08-25 22:44:17 BST                     #
 #                               by FTL version v6.7                              #
 #                                                                                #
 ##################################################################################
@@ -30,7 +30,8 @@ no-resolv
 port=53
 
 # List of upstream DNS server
-server=127.0.0.1#5335
+server=8.8.8.8
+server=8.8.4.4
 
 # Set the size of dnsmasq's cache. The default is 150 names. Setting the cache
 # size to zero disables caching. Note: huge cache size impacts performance

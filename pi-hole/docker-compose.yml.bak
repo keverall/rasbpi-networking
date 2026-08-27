@@ -25,7 +25,7 @@ services:
     restart: unless-stopped
 
   unbound:
-    image: local/unbound-rpi:1.26.0
+    image: mvance/unbound-rpi:latest
     container_name: unbound
     # Run in bridge mode and bind only to host loopback so it doesn't conflict with Pi-hole on :53
     # Expose DNS on 5335 (host loopback 127.0.0.1:5335) and remote-control on 8953
@@ -131,7 +131,7 @@ services:
     #   restart: unless-stopped
 
   cadvisor:
-    image: ghcr.io/google/cadvisor:latest
+    image: gcr.io/cadvisor/cadvisor:latest
     container_name: cadvisor
     network_mode: host
     restart: unless-stopped
