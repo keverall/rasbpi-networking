@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM python:3.14-slim
 WORKDIR /app
 COPY raspi_exporter.py /app/raspi_exporter.py
 RUN pip install --no-cache-dir prometheus_client
