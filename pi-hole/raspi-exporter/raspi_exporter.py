@@ -9,11 +9,12 @@ This exporter is intentionally minimal: it calls vcgencmd periodically and expor
 small set of useful gauges (CPU temp, core freq, core volts, throttled flags).
 """
 import os
+import re
+import subprocess
 import sys
 import time
-import subprocess
-import re
-from prometheus_client import start_http_server, Gauge
+
+from prometheus_client import Gauge, start_http_server
 
 VCG_PATHS = [
     "/opt/vc/bin/vcgencmd",
@@ -24,6 +25,11 @@ VCG_PATHS = [
 
 
 def find_vcgencmd():
+    """Locate the vcgencmd binary on the system.
+
+    Returns:
+        str or None: Path to the executable if found, None otherwise.
+    """
     for p in VCG_PATHS:
         if os.path.exists(p) and os.access(p, os.X_OK):
             return p
@@ -31,6 +37,15 @@ def find_vcgencmd():
 
 
 def run_vcgencmd(path, args):
+    """Execute a vcgencmd command.
+
+    Args:
+        path (str): Path to the vcgencmd binary.
+        args (list): Arguments to pass to vcgencmd.
+
+    Returns:
+        str or None: Decoded command output, or None on failure.
+    """
     try:
         out = subprocess.check_output([path] + args, stderr=subprocess.DEVNULL)
         return out.decode().strip()
@@ -39,6 +54,14 @@ def run_vcgencmd(path, args):
 
 
 def parse_temp(s):
+    """Extract temperature value from vcgencmd measure_temp output.
+
+    Args:
+        s (str): Raw output string (e.g., "temp=42.1'C").
+
+    Returns:
+        float or None: Temperature in Celsius, or None if parsing failed.
+    """
     if not s:
         return None
     m = re.search(r"([-+]?[0-9]*\.?[0-9]+)", s)
@@ -46,6 +69,14 @@ def parse_temp(s):
 
 
 def parse_volts(s):
+    """Extract voltage value from vcgencmd measure_volts output.
+
+    Args:
+        s (str): Raw output string (e.g., "volt=1.2000V").
+
+    Returns:
+        float or None: Voltage in volts, or None if parsing failed.
+    """
     if not s:
         return None
     m = re.search(r"([-+]?[0-9]*\.?[0-9]+)", s)
@@ -53,6 +84,14 @@ def parse_volts(s):
 
 
 def parse_freq(s):
+    """Extract frequency value from vcgencmd measure_clock output.
+
+    Args:
+        s (str): Raw output string (e.g., "frequency(arm)=1800000000").
+
+    Returns:
+        int or None: Frequency in Hz, or None if parsing failed.
+    """
     if not s:
         return None
     m = re.search(r"([0-9]+)", s)
@@ -60,6 +99,14 @@ def parse_freq(s):
 
 
 def parse_throttled(s):
+    """Extract throttled flags from vcgencmd get_throttled output.
+
+    Args:
+        s (str): Raw output string (e.g., "throttled=0x50005").
+
+    Returns:
+        int: Raw throttled flags as integer, or 0 if parsing failed.
+    """
     if not s:
         return 0
     m = re.search(r"0x[0-9a-fA-F]+", s)
@@ -74,6 +121,11 @@ def parse_throttled(s):
 
 
 def main(port):
+    """Main loop: poll vcgencmd and expose metrics via Prometheus.
+
+    Args:
+        port (int): HTTP port to serve metrics on.
+    """
     vcgencmd_path = find_vcgencmd()
 
     g_vcgencmd = Gauge("raspi_vcgencmd_present", "1 if vcgencmd is available")
@@ -110,7 +162,6 @@ def main(port):
             thr_out = run_vcgencmd(vcgencmd_path, ["get_throttled"])
             thr_val = parse_throttled(thr_out)
             g_throttled_raw.set(thr_val)
-            # Bit 0x1: under-voltage now; 0x4: throttled now
             g_undervoltage_now.set(1 if (thr_val & 0x1) else 0)
             g_throttled_now.set(1 if (thr_val & 0x4) else 0)
 
@@ -123,4 +174,3 @@ if __name__ == "__main__":
     except Exception:
         port = 9779
     main(port)
-
