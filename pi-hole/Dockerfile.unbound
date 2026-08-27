@@ -1,14 +1,40 @@
+FROM alpine:3.20 AS builder
+
+RUN apk add --no-cache \
+    build-base \
+    expat-dev \
+    libevent-dev \
+    openssl-dev \
+    wget \
+    tar
+
+RUN wget https://nlnetlabs.nl/downloads/unbound/unbound-1.26.0.tar.gz && \
+    tar xzf unbound-1.26.0.tar.gz && \
+    cd unbound-1.26.0 && \
+    ./configure \
+        --prefix=/opt/unbound \
+        --with-libevent \
+        --with-ssl \
+        --disable-static \
+        --enable-tfo-server \
+        --enable-tfo-client && \
+    make -j$(nproc) && \
+    make install
+
 FROM alpine:3.20
 
 RUN apk add --no-cache \
-    unbound \
-    unbound-doc \
+    libevent \
+    openssl \
+    expat \
     ca-certificates \
     tzdata \
     && rm -rf /var/cache/apk/*
 
-RUN addgroup -g 1000 _unbound 2>/dev/null || true
-RUN adduser -S -u 1000 -G _unbound _unbound 2>/dev/null || true
+RUN addgroup -g 1000 _unbound 2>/dev/null || true && \
+    adduser -S -u 1000 -G _unbound _unbound 2>/dev/null || true
+
+COPY --from=builder /opt/unbound /opt/unbound
 
 RUN mkdir -p /opt/unbound/etc/unbound /opt/unbound/var/log \
     && chown -R _unbound:_unbound /opt/unbound

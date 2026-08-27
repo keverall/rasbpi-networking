@@ -29,11 +29,11 @@ echo "[entrypoint] ensuring $VAR_DIR exists" >&2
 mkdir -p -m 700 "$VAR_DIR"
 chown _unbound:_unbound "$VAR_DIR" 2>/dev/null || true
 
-if [ -x /usr/sbin/unbound-anchor ]; then
+if [ -x /opt/unbound/sbin/unbound-anchor ]; then
   echo "[entrypoint] running unbound-anchor to (re)generate root.key if needed" >&2
-  /usr/sbin/unbound-anchor -a "$VAR_DIR/root.key" || true
+  /opt/unbound/sbin/unbound-anchor -a "$VAR_DIR/root.key" || true
 fi
 
 echo "[entrypoint] exec unbound in foreground (stderr->stdout, verbose)" >&2
 # Run unbound in foreground and redirect stderr to stdout so Docker captures all output
-exec /usr/sbin/unbound -d -v -c "$CONF_DIR/unbound.conf" 2>&1
+exec /opt/unbound/sbin/unbound -d -v -c "$CONF_DIR/unbound.conf" 2>&1
