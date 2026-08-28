@@ -8,7 +8,6 @@ groups:
           severity: critical
         annotations:
           summary: "Pi-hole is down"
-          description: "Pi-hole DNS blocker has been down for more than 5 minutes."
 
       - alert: HighCPUUsage
         expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
@@ -16,17 +15,15 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "High CPU usage detected"
-          description: "CPU usage has been above 80% for more than 10 minutes."
+          summary: "High CPU usage"
 
       - alert: HighMemoryUsage
         expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
         for: 10m
- labels:
+        labels:
           severity: warning
         annotations:
-          summary: "High memory usage detected"
-          description: "Memory usage has been above 85% for more than 10 minutes."
+          summary: "High memory usage"
 
       - alert: DiskSpaceLow
         expr: (1 - (node_filesystem_avail_bytes{fstype!="tmpfs"} / node_filesystem_size_bytes{fstype!="tmpfs"})) * 100 > 90
@@ -34,8 +31,7 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "Disk space running low"
-          description: "Disk usage has been above 90% for more than 10 minutes."
+          summary: "Disk space low"
 
       - alert: ContainerDown
         expr: absent(up{job="cadvisor"} == 1) or absent(up{job="node_exporter"} == 1)
@@ -43,5 +39,4 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Container monitoring down"
-          description: "One or more monitoring containers are down."
+          summary: "Container down"
