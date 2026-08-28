@@ -163,3 +163,22 @@ services:
       - /opt/vc:/opt/vc:ro
     environment:
       - PORT=9779
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: alertmanager
+    network_mode: host
+    volumes:
+      - ./alertmanager:/etc/alertmanager
+    command:
+      - --config.file=/etc/alertmanager/config.yml
+      - --storage.path=/alertmanager
+    restart: unless-stopped
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    container_name: uptime-kuma
+    network_mode: host
+    volumes:
+      - ./uptime-kuma:/app/data
+    restart: unless-stopped
