@@ -126,8 +126,7 @@ services:
     network_mode: host
     restart: unless-stopped
     volumes:
-    - /usr/bin/vcgencmd:/usr/bin/vcgencmd:ro
-    - /opt/vc:/opt/vc:ro
+    - /sys/class/thermal/thermal_zone0/temp:/sys/class/thermal/thermal_zone0/temp:ro
     environment:
     - PORT=9779
   alertmanager:

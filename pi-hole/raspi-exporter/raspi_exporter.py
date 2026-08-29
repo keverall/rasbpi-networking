@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
-"""Simple Raspberry Pi exporter that wraps vcgencmd and exposes Prometheus metrics.
+"""Simple Raspberry Pi exporter that reads system metrics and exposes Prometheus metrics.
 
-Requirements:
-- The host's vcgencmd binary should be mounted into the container (e.g. /opt/vc/bin/vcgencmd).
-- The container should have access to /dev/vchiq (device) and /opt/vc mounted read-only.
+This exporter reads CPU temperature directly from sysfs and optionally wraps vcgencmd
+for additional metrics (core freq, core volts, throttled flags).
 
-This exporter is intentionally minimal: it calls vcgencmd periodically and exports a
-small set of useful gauges (CPU temp, core freq, core volts, throttled flags).
+CPU temperature is read from /sys/class/thermal/thermal_zone0/temp (no vcgencmd required).
 """
 import os
 import re
@@ -22,6 +20,25 @@ VCG_PATHS = [
     "/usr/local/bin/vcgencmd",
     "/bin/vcgencmd",
 ]
+
+THERMAL_ZONE = "/sys/class/thermal/thermal_zone0/temp"
+
+
+def read_thermal_zone(path=THERMAL_ZONE):
+    """Read temperature from sysfs thermal zone.
+
+    Args:
+        path (str): Path to thermal zone temp file.
+
+    Returns:
+        float or None: Temperature in Celsius, or None on failure.
+    """
+    try:
+        with open(path, "r") as f:
+            raw = f.read().strip()
+            return float(raw) / 1000.0
+    except Exception:
+        return None
 
 
 def find_vcgencmd():
@@ -146,6 +163,11 @@ def main(port):
         if vcgencmd_path:
             temp_out = run_vcgencmd(vcgencmd_path, ["measure_temp"])
             temp_val = parse_temp(temp_out)
+            if temp_val is not None:
+                g_cpu_temp.set(temp_val)
+        else:
+            # Fallback: read from sysfs thermal zone
+            temp_val = read_thermal_zone()
             if temp_val is not None:
                 g_cpu_temp.set(temp_val)
 
