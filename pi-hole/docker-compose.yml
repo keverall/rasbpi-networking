@@ -37,6 +37,7 @@ services:
     volumes:
     - ./unbound:/opt/unbound/etc/unbound
     - ./unbound/entrypoint.sh:/entrypoint.sh:ro
+    - ./unbound/var/log:/var/log/unbound
     entrypoint:
     - /entrypoint.sh
     healthcheck:
@@ -145,4 +146,21 @@ services:
     network_mode: host
     volumes:
     - ./uptime-kuma:/app/data
+    restart: unless-stopped
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    network_mode: host
+    volumes:
+    - ./loki/config.yml:/etc/loki/config.yml
+    command: -config.file=/etc/loki/config.yml
+    restart: unless-stopped
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    network_mode: host
+    volumes:
+    - ./promtail/config.yml:/etc/promtail/config.yml
+    - ./unbound/var/log:/var/log/unbound:ro
+    command: -config.file=/etc/promtail/config.yml
     restart: unless-stopped
