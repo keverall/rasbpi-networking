@@ -53,22 +53,19 @@ services:
     build:
       context: ./unbound-exporter
     image: local/unbound_exporter:latest
-    ports:
-    - 0.0.0.0:9167:9167
     volumes:
     - ./unbound:/etc/unbound:ro
     command:
     - /usr/local/bin/unbound_exporter
     - -unbound.host
-    - unbound:8953
-    - -web.listen-address
-    - :9167
+    - 127.0.0.1:8953
     environment:
       UNBOUND_HOST: unbound
       UNBOUND_PORT: 8953
     depends_on:
     - unbound
     restart: unless-stopped
+    network_mode: host
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
