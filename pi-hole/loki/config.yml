@@ -17,9 +17,9 @@ common:
 schema_config:
   configs:
     - from: 2020-10-24
-      store: boltdb-shipper
+      store: tsdb
       object_store: filesystem
-      schema: v11
+      schema: v13
       index:
         prefix: index_
         period: 24h
@@ -27,3 +27,4 @@ schema_config:
 limits_config:
   max_streams_per_user: 0
   max_line_size: 1048576
+  allow_structured_metadata: false
