@@ -29,6 +29,14 @@ desktop checkout.
 
 ## APPLIED (safe, offline — no packages required)
 
+### 0. Boot robustness (fixes emergency mode / no-network)
+- `/etc/fstab` `/mnt/ssd` line: added `nofail,x-systemd.device-timeout=30s`. An external
+  SSD with no `nofail` dropped the Pi to **emergency mode** when unplugged or slow to
+  spin up; now it is optional and time-bounded.
+- `NetworkManager` was **enabled** in `multi-user.target.wants` (it was not enabled;
+  after `systemd-networkd` was disabled earlier, the Pi would otherwise boot with *no*
+  network manager). NM now owns `eth0` (static `192.168.1.5`) + `wlan0`.
+
 ### 1. Hardware watchdog (auto-reboot on hang)
 - `/boot/config.txt` (Pi boot partition):
   ```ini
@@ -40,6 +48,9 @@ desktop checkout.
   ```
   systemd pets the hardware watchdog; if it stops for 30s the Pi reboots.
   No `watchdog` package needed — systemd's built-in support is used.
+  **Caveat:** if the Pi appears to reboot in a loop (truly hung, e.g. a stalled mount),
+  the watchdog is firing — revert `RuntimeWatchdogSec=30` in `/etc/systemd/system.conf`
+  and `dtparam=watchdog=on` in `config.txt` to recover.
 
 ### 2. Kernel panic → reboot
 - `/etc/sysctl.d/99-hardening.conf`:
