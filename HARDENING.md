@@ -35,7 +35,10 @@ desktop checkout.
   spin up; now it is optional and time-bounded.
 - `NetworkManager` was **enabled** in `multi-user.target.wants` (it was not enabled;
   after `systemd-networkd` was disabled earlier, the Pi would otherwise boot with *no*
-  network manager). NM now owns `eth0` (static `192.168.1.5`) + `wlan0`.
+  network manager). NM owns `eth0` (static `192.168.1.5`). `wlan0`
+  (`CommunityFibre10Gb_714FC`) autoconnect was disabled
+  (`nmcli connection modify "CommunityFibre10Gb_714FC" connection.autoconnect no`) so the
+  Pi keeps a single default route via `eth0` and avoids the dual-gateway conflict.
 
 ### 1. Hardware watchdog (auto-reboot on hang)
 - `/boot/config.txt` (Pi boot partition):
