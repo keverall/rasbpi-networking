@@ -51,4 +51,5 @@ pi-hole/etc-pihole/dnsmasq.conf
 
 # Live runtime data / pid files (bind-mounted volumes)
 pi-hole/unbound/*.pid
+pi-hole/unbound/var/log/*.log
 pi-hole/uptime-kuma/kuma.db*

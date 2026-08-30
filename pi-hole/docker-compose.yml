@@ -22,7 +22,13 @@ services:
     - NET_ADMIN
     - SYS_TIME
     - SYS_NICE
+    # Critical: DNS resolution must not be starved
+    mem_reservation: 256m
+    mem_limit: 1g
+    cpus: 1.0
+    cpu_shares: 1024
     restart: unless-stopped
+
   unbound:
     build:
       context: .
@@ -42,13 +48,19 @@ services:
     - /entrypoint.sh
     healthcheck:
       test:
-      - CMD-SHELL
-      - exit 0
+        - CMD-SHELL
+        - exit 0
       interval: 30s
       timeout: 10s
       retries: 1
       start_period: 5s
     restart: unless-stopped
+    # Critical: DNS-over-TLS resolver; must not be starved
+    mem_reservation: 128m
+    mem_limit: 512m
+    cpus: 0.5
+    cpu_shares: 1024
+
   unbound_exporter:
     build:
       context: ./unbound-exporter
@@ -66,6 +78,12 @@ services:
     - unbound
     restart: unless-stopped
     network_mode: host
+    # Lightweight: exposes DNS metrics
+    mem_reservation: 32m
+    mem_limit: 128m
+    cpus: 0.2
+    cpu_shares: 128
+
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
@@ -73,6 +91,12 @@ services:
     volumes:
     - ./prometheus:/etc/prometheus
     restart: unless-stopped
+    # Important: metrics storage (tsdb) needs adequate memory
+    mem_reservation: 512m
+    mem_limit: 2g
+    cpus: 1.0
+    cpu_shares: 512
+
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
@@ -81,6 +105,12 @@ services:
     volumes:
     - ./grafana:/var/lib/grafana
     restart: unless-stopped
+    # Important: dashboard rendering + alerting
+    mem_reservation: 256m
+    mem_limit: 1g
+    cpus: 0.5
+    cpu_shares: 512
+
   pihole_exporter:
     image: ekofr/pihole-exporter:latest
     container_name: pihole_exporter
@@ -90,6 +120,12 @@ services:
       PIHOLE_PASSWORD: ${WEBPASSWORD}
       PORT: '9617'
     restart: unless-stopped
+    # Lightweight: Pi-hole metrics
+    mem_reservation: 32m
+    mem_limit: 128m
+    cpus: 0.1
+    cpu_shares: 128
+
   node_exporter:
     image: prom/node-exporter:latest
     container_name: node_exporter
@@ -104,6 +140,12 @@ services:
     - --path.procfs=/host/proc
     - --path.sysfs=/host/sys
     - --collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($|/)
+    # Lightweight: system metrics
+    mem_reservation: 32m
+    mem_limit: 128m
+    cpus: 0.1
+    cpu_shares: 128
+
   cadvisor:
     image: ghcr.io/google/cadvisor:latest
     container_name: cadvisor
@@ -116,6 +158,12 @@ services:
     - /var/lib/docker/:/var/lib/docker:ro
     command:
     - --port=8081
+    # Medium: container metrics analysis
+    mem_reservation: 64m
+    mem_limit: 256m
+    cpus: 0.2
+    cpu_shares: 128
+
   raspi_exporter:
     build:
       context: ./raspi-exporter
@@ -127,6 +175,12 @@ services:
     - /sys/class/thermal/thermal_zone0/temp:/sys/class/thermal/thermal_zone0/temp:ro
     environment:
     - PORT=9779
+    # Lightweight: Pi thermal metrics
+    mem_reservation: 32m
+    mem_limit: 128m
+    cpus: 0.1
+    cpu_shares: 128
+
   alertmanager:
     image: prom/alertmanager:latest
     container_name: alertmanager
@@ -137,6 +191,12 @@ services:
     - --config.file=/etc/alertmanager/config.yml
     - --storage.path=/alertmanager
     restart: unless-stopped
+    # Lightweight: alert routing
+    mem_reservation: 64m
+    mem_limit: 256m
+    cpus: 0.2
+    cpu_shares: 128
+
   uptime-kuma:
     image: louislam/uptime-kuma:latest
     container_name: uptime-kuma
@@ -144,6 +204,12 @@ services:
     volumes:
     - ./uptime-kuma:/app/data
     restart: unless-stopped
+    # Medium: uptime monitoring
+    mem_reservation: 128m
+    mem_limit: 512m
+    cpus: 0.3
+    cpu_shares: 256
+
   loki:
     image: grafana/loki:latest
     container_name: loki
@@ -152,6 +218,12 @@ services:
     - ./loki/config.yml:/etc/loki/config.yml
     command: -config.file=/etc/loki/config.yml
     restart: unless-stopped
+    # Important: log storage
+    mem_reservation: 256m
+    mem_limit: 1g
+    cpus: 0.5
+    cpu_shares: 512
+
   promtail:
     image: grafana/promtail:latest
     container_name: promtail
@@ -167,3 +239,8 @@ services:
     - /var/lib/docker/containers:/var/lib/docker/containers:ro
     command: -config.file=/etc/promtail/config.yml
     restart: unless-stopped
+    # Lightweight: log collection
+    mem_reservation: 64m
+    mem_limit: 256m
+    cpus: 0.2
+    cpu_shares: 128
