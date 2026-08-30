@@ -1,18 +1,83 @@
-I've added FTLCONF_webserver_api_password to the pihole service environment in [`pi-hole/docker-compose.yml OR yaml()`](pi-hole/docker-compose.yml:11) and set FTLCONF_webserver_api_password="${WEBPASSWORD}" in [`pi-hole/.env OR env()`](pi-hole/.env:4). Then I recreated the pihole container with `docker compose up -d --no-deps --force-recreate pihole`.
+# Pi-hole FTL API password configuration
 
-Next steps to verify API access (run these on your Pi/host). IMPORTANT: do NOT paste or commit real passwords into repository files or documentation. Use an environment variable (for example `${WEBPASSWORD}` from [`pi-hole/.env`](pi-hole/.env:1)) or read the secret at runtime.
+How the Pi-hole web admin / FTL HTTP API password is set in this repo, and how
+to authenticate to the API. **No secrets live in this repository** — see
+`pi-hole/.gitignore`; the real `pi-hole/.env` is ignored and never committed.
 
-1) Obtain sid+CSRF with curl and store cookies (use a runtime secret placeholder):
-   - Example using an explicit placeholder (replace <REDACTED_PASSWORD> with a value read from an env var/secure source):
-     - curl -s -c cookies.txt -X POST "http://127.0.0.1/api/auth" -H "Content-Type: application/json" -d '{"password":"<REDACTED_PASSWORD>"}'
-   - Inspect token: `jq -r .token <(tail -n +1 cookies.txt 2>/dev/null || echo '{}')` (or parse curl output directly)
+## How the password is provided
 
-2) Example using header-based SID (no cookie):
-   - SID=$(curl -s -X POST "http://127.0.0.1/api/auth" -H "Content-Type: application/json" -d '{"password":"<REDACTED_PASSWORD>"}' | jq -r .sid)
-   - curl -s -H "X-FTL-SID: $SID" "http://127.0.0.1/api/queries"
+The Pi-hole password comes from `WEBPASSWORD` in `pi-hole/.env` (copy and edit
+from `pi-hole/.env.example`). It is passed to the `pihole` service in
+[`pi-hole/docker-compose.yml`](pi-hole/docker-compose.yml) like this:
 
-3) Example using cookie+CSRF:
-   - curl -s -c cookies.txt -X POST "http://127.0.0.1/api/auth" -H "Content-Type: application/json" -d '{"password":"<REDACTED_PASSWORD>"}' | jq -r .token > token.txt
-   - curl -s -b cookies.txt -H "X-CSRF-TOKEN: $(cat token.txt)" "http://127.0.0.1/api/queries"
+```yaml
+services:
+  pihole:
+    environment:
+      TZ: ${TZ}
+      WEBPASSWORD: ${WEBPASSWORD}
+      FTLCONF_webserver_api_password: ${WEBPASSWORD}
+```
 
-If these return 200 and the expected JSON, the API password is correctly set. I will mark verification as pending in the todo list. Completed changes are in the repo; tell me if you want me to revert or instead patch the compose to use FTLCONF_webserver_api_password from a different env var (e.g., ADMIN_PASSWORD).
+- `WEBPASSWORD` — the legacy variable Pi-hole maps to the web admin password.
+- `FTLCONF_webserver_api_password` — an **FTL configuration key** exposed as an
+  environment variable via Pi-hole FTL's `FTLCONF_*` convention (each
+  `FTLCONF_<key>` maps to an FTL config setting, with underscores converted to
+  config separators). Both lines set the **same** credential, so the web UI and
+  the FTL HTTP API share one password.
+
+> `PIHOLE_API` (also present in `pi-hole/.env.example`) is a **separate** API
+> token used for token-based auth (e.g. by `pihole_exporter` via
+> `?auth=<token>`). It is **not** the web/admin password and is not what
+> `/api/auth` validates.
+
+## Authenticating to the FTL API
+
+1. Obtain a session by posting the password to `/api/auth` (`https://127.0.0.1`
+   with a self-signed cert, so `-k` is used; matching the recipe in
+   [`doc/docker-commands.md`](doc/docker-commands.md)):
+
+   ```bash
+   # Read the secret at runtime; never hard-code it.
+   PW="$(grep '^WEBPASSWORD=' pi-hole/.env | cut -d= -f2-)"
+   curl -sk -X POST "https://127.0.0.1/api/auth" \
+     -H "Content-Type: application/json" \
+     -d "{\"password\":\"${PW}\"}"
+   ```
+
+   A success response looks like:
+
+   ```json
+   {"session":{"valid":true,"sid":"<SID>","csrf":"<CSRF>","totp":false}}
+   ```
+
+   A wrong password returns `401` with:
+
+   ```json
+   {"session":{"valid":false,"message":"password incorrect"}}
+   ```
+
+2. Reuse the session for API calls via the `SID` and `CSRF` returned in
+   `session.sid` / `session.csrf`:
+
+   ```bash
+   SID=...    # from session.sid
+   CSRF=...   # from session.csrf
+   curl -sk -H "X-FTL-SID: ${SID}" -H "X-CSRF-TOKEN: ${CSRF}" \
+     "https://127.0.0.1/api/queries"
+   ```
+
+   The full, sanitized step-by-step recipe (cookie jar, CSRF flow, `pi.hole`
+   Host header) lives in [`doc/docker-commands.md`](doc/docker-commands.md).
+
+## Notes
+
+- `pi-hole/.env` is listed in `.gitignore` and must **never** be committed. It
+  contains `WEBPASSWORD` and `PIHOLE_API`.
+- Never paste real passwords into repository files or documentation — always read
+  them at runtime as shown above.
+- After changing `WEBPASSWORD` in `.env`, recreate the container:
+
+  ```bash
+  cd pi-hole && docker compose up -d --no-deps --force-recreate pihole
+  ```
