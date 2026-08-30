@@ -34,7 +34,7 @@ groups:
           summary: "Disk space low"
 
       - alert: ContainerDown
-        expr: absent(up{job="cadvisor"} == 1) or absent(up{job="node_exporter"} == 1)
+        expr: absent(up{job="node_exporter"} == 1)
         for: 5m
         labels:
           severity: warning

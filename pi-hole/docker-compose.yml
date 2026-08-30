@@ -146,24 +146,6 @@ services:
     cpus: 0.1
     cpu_shares: 128
 
-  cadvisor:
-    image: ghcr.io/google/cadvisor:latest
-    container_name: cadvisor
-    network_mode: host
-    restart: unless-stopped
-    volumes:
-    - /:/rootfs:ro
-    - /var/run:/var/run:rw
-    - /sys:/sys:ro
-    - /var/lib/docker/:/var/lib/docker:ro
-    command:
-    - --port=8081
-    # Medium: container metrics analysis
-    mem_reservation: 64m
-    mem_limit: 256m
-    cpus: 0.2
-    cpu_shares: 128
-
   raspi_exporter:
     build:
       context: ./raspi-exporter
