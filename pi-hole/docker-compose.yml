@@ -162,6 +162,6 @@ services:
     - ./unbound/var/log:/var/log/unbound:ro
     # Docker container logs: mount container log directory so promtail can
     # read stdout/stderr JSON logs from all containers via static_configs
-     - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    - /var/lib/docker/containers:/var/lib/docker/containers:ro
     command: -config.file=/etc/promtail/config.yml
     restart: unless-stopped
