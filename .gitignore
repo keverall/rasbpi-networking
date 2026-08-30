@@ -21,6 +21,7 @@ pi-hole/grafana/grafana.db*
 pi-hole/grafana/png/
 pi-hole/grafana/plugins/
 pi-hole/grafana/log/
+pi-hole/grafana/unified-search/
 
 # Pi-hole runtime, backups and secrets
 pi-hole/.env
