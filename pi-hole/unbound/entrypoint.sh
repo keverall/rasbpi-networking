@@ -26,8 +26,12 @@ if [ ! -d "$DEV_DIR" ]; then
 fi
 
 echo "[entrypoint] ensuring $VAR_DIR exists" >&2
-mkdir -p -m 700 "$VAR_DIR"
+mkdir -p -m 755 "$VAR_DIR"
 chown _unbound:_unbound "$VAR_DIR" 2>/dev/null || true
+
+# Create log subdirectory so unbound can write logfile (var/log/unbound.log)
+mkdir -p -m 755 "$VAR_DIR/log"
+chown _unbound:_unbound "$VAR_DIR/log" 2>/dev/null || true
 
 if [ -x /opt/unbound/sbin/unbound-anchor ]; then
   echo "[entrypoint] running unbound-anchor to (re)generate root.key if needed" >&2

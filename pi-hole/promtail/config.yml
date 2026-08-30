@@ -9,6 +9,10 @@ clients:
   - url: http://localhost:3100/loki/api/v1/push
 
 scrape_configs:
+
+  # Unbound: read log file written by the unbound container (logfile: var/log/unbound.log)
+  # The file is at /var/log/unbound/unbound.log inside this container via the
+  # bind-mount ./unbound/var/log → /var/log/unbound:ro
   - job_name: unbound
     static_configs:
       - targets:
@@ -17,10 +21,26 @@ scrape_configs:
           job: unbound
           __path__: /var/log/unbound/*.log
     pipeline_stages:
-      - regex:
-          expression: "^(?P<timestamp>\\S+)\\s+(?P<level>\\w+)\\s+(?P<message>.*)$"
+      - docker: {}
       - timestamp:
-          source: timestamp
-          format: "2006-01-02T15:04:05.000000-07:00"
+          source: time
+          format: "2006-01-02T15:04:05.999999999Z07:00"
       - labels:
           level:
+
+  # Docker container logs: reads stdout/stderr JSON logs from all containers
+  # via the Docker API. This captures logs that go to the Docker logging
+  # driver (e.g., Pi-hole, Grafana, Prometheus, Loki).
+  - job_name: containers
+    docker_logs:
+      containers:
+        - unbound
+        - pihole
+        - grafana
+        - loki
+        - prometheus
+    pipeline-stages:
+      - docker: {}
+    relabel_configs:
+      - source_labels: [container_name]
+        target_label: job

@@ -158,6 +158,11 @@ services:
     network_mode: host
     volumes:
     - ./promtail/config.yml:/etc/promtail/config.yml
+    # Unbound logs to file via logfile directive; read by promtail job "unbound"
     - ./unbound/var/log:/var/log/unbound:ro
+    # Docker container logs: mount container log files + Docker socket so
+    # promtail's docker_logs job can read stdout/stderr from all containers
+    - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    - /var/run/docker.sock:/var/run/docker.sock:ro
     command: -config.file=/etc/promtail/config.yml
     restart: unless-stopped
