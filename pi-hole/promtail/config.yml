@@ -13,6 +13,8 @@ scrape_configs:
   # Unbound: read log file written by the unbound container (logfile: var/log/unbound.log)
   # The file is at /var/log/unbound/unbound.log inside this container via the
   # bind-mount ./unbound/var/log → /var/log/unbound:ro
+  # No pipeline_stages needed — unbound writes plain text, not Docker JSON.
+  # Promtail uses its ingestion timestamp.
   - job_name: unbound
     static_configs:
       - targets:
@@ -20,27 +22,21 @@ scrape_configs:
         labels:
           job: unbound
           __path__: /var/log/unbound/*.log
+
+  # Docker container logs: read stdout/stderr JSON log files from the Docker
+  # daemon's container log directory. This captures logs from containers that
+  # write to the Docker logging driver (default json-file), e.g., Pi-hole,
+  # Grafana, Prometheus, Loki, node_exporter, etc.
+  # Requires /var/lib/docker/containers mounted read-only (see docker-compose.yml).
+  - job_name: containers
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: containers
+          __path__: /var/lib/docker/containers/*/*-json.log
     pipeline_stages:
       - docker: {}
       - timestamp:
           source: time
           format: "2006-01-02T15:04:05.999999999Z07:00"
-      - labels:
-          level:
-
-  # Docker container logs: reads stdout/stderr JSON logs from all containers
-  # via the Docker API. This captures logs that go to the Docker logging
-  # driver (e.g., Pi-hole, Grafana, Prometheus, Loki).
-  - job_name: containers
-    docker_logs:
-      containers:
-        - unbound
-        - pihole
-        - grafana
-        - loki
-        - prometheus
-    pipeline-stages:
-      - docker: {}
-    relabel_configs:
-      - source_labels: [container_name]
-        target_label: job
