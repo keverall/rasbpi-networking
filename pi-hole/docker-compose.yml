@@ -155,6 +155,7 @@ services:
   promtail:
     image: grafana/promtail:latest
     container_name: promtail
+    user: '0'
     network_mode: host
     volumes:
     - ./promtail/config.yml:/etc/promtail/config.yml
@@ -162,6 +163,7 @@ services:
     - ./unbound/var/log:/var/log/unbound:ro
     # Docker container logs: mount container log directory so promtail can
     # read stdout/stderr JSON logs from all containers via static_configs
+    # (Docker container log files are root:root 0640, hence user: '0' above)
     - /var/lib/docker/containers:/var/lib/docker/containers:ro
     command: -config.file=/etc/promtail/config.yml
     restart: unless-stopped
