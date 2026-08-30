@@ -4,6 +4,8 @@ A Docker-based Pi-hole stack for a Raspberry Pi 5 (arm64) plus a local
 monitoring stack. It runs Pi-hole with a local recursive resolver (Unbound) and
 Prometheus/Grafana/Loki monitoring on the Pi itself.
 
+![alt text](doc/pi-hole.png)
+
 ## What this project provides
 
 - A locally built **Pi-hole** image (Pi-hole server + pihole-FTL + web UI).
