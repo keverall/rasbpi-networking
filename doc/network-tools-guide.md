@@ -9,6 +9,7 @@ Utilities for monitoring, security auditing, and diagnostics from CachyOS.
 **Purpose**: Bans IPs that show malicious signs (failed SSH, brute force).
 
 ### Verify Config
+
 ```bash
 # Check fail2ban is running
 sudo systemctl status fail2ban
@@ -27,6 +28,7 @@ sudo fail2ban-client set sshd unbanip 192.168.1.100
 ```
 
 ### Config Location
+
 - `/etc/fail2ban/jail.local` - custom rules
 - `/etc/fail2ban/jail.d/` - additional jails
 
@@ -37,6 +39,7 @@ sudo fail2ban-client set sshd unbanip 192.168.1.100
 **Purpose**: Security auditing and compliance testing.
 
 ### Run Audit
+
 ```bash
 # Install
 sudo pacman -S lynis
@@ -59,6 +62,7 @@ sudo grep "suggestion" /var/log/lynis-report.dat
 ```
 
 ### Schedule Regular Audits
+
 ```bash
 # Add to crontab (weekly)
 sudo crontab -e
@@ -72,6 +76,7 @@ sudo crontab -e
 **Purpose**: Network scanning and discovery.
 
 ### Scan from CachyOS
+
 ```bash
 # Install
 sudo pacman -S nmap
@@ -93,8 +98,9 @@ sudo nmap -A -T4 192.168.1.5
 ```
 
 ### Common Scans
+
 | Scan Type | Command | Use Case |
-|-----------|---------|----------|
+| --- | --- | --- |
 | Ping sweep | `nmap -sn 192.168.1.0/24` | Find live hosts |
 | Quick | `nmap -F 192.168.1.5` | Fast port scan |
 | Service | `nmap -sV 192.168.1.5` | Detect service versions |
@@ -107,6 +113,7 @@ sudo nmap -A -T4 192.168.1.5
 **Purpose**: Bandwidth testing between machines.
 
 ### Setup
+
 ```bash
 # Install on CachyOS
 sudo pacman -S iperf3
@@ -116,6 +123,7 @@ sudo apt install -y iperf3
 ```
 
 ### Run Test
+
 ```bash
 # On Pi (server mode)
 iperf3 -s
@@ -140,6 +148,7 @@ iperf3 -c 192.168.1.5 -t 30
 **Purpose**: Combined traceroute + ping for network diagnostics.
 
 ### Usage
+
 ```bash
 # Install
 sudo pacman -S mtr
@@ -158,6 +167,7 @@ mtr -n 192.168.1.5
 ```
 
 ### Interpreting Output
+
 - **Loss%** = packet loss at that hop
 - **Avg** = average latency
 - **Wrst** = worst latency
@@ -169,6 +179,7 @@ mtr -n 192.168.1.5
 **Purpose**: Real-time system monitoring with web UI.
 
 ### Install on Pi
+
 ```bash
 # Install
 curl https://my-netdata.io/kickstart.sh > /tmp/netdata-kickstart.sh
@@ -191,15 +202,18 @@ docker run -d --name=netdata \
 ```
 
 ### Access
+
 - URL: `http://192.168.1.5:19999`
 
 ### Integrate with Prometheus/Grafana
+
 ```bash
 # netdata exports Prometheus metrics at
 http://192.168.1.5:19999/api/v1/allmetrics?format=prometheus
 ```
 
 Add to `prometheus.yml`:
+
 ```yaml
   - job_name: 'netdata'
     static_configs:
@@ -211,24 +225,29 @@ Add to `prometheus.yml`:
 ## Grafana Dashboards
 
 ### Import Dashboards
+
 1. Navigate to `http://192.168.1.5:3000`
 2. Dashboards → Import
 3. Enter dashboard ID or paste JSON
 
 ### Useful Dashboard IDs
+
 | ID | Name | Monitors |
-|----|------|----------|
+| --- | --- | --- |
 | 1860 | Node Exporter Full | CPU, Memory, Disk, Network |
 | 9658 | Pi-hole | DNS queries, blocked domains |
 | 12345 | WireGuard | VPN traffic (if applicable) |
 
 ### Create Alerts
+
 1. Edit panel → Alert tab
 2. Set condition (e.g., `WHEN last() OF query(A, 5m, now) IS ABOVE 80`)
 3. Configure notification channel
 
 ### Notification Channels
+
 Settings → Notification channels → Add:
+
 - **Discord**: Webhook URL
 - **Email**: SMTP settings
 - **Telegram**: Bot token + chat ID
@@ -238,7 +257,7 @@ Settings → Notification channels → Add:
 ## Quick Reference
 
 | Tool | Install (CachyOS) | Command |
-|------|-------------------|---------|
+| --- | --- | --- |
 | fail2ban | `sudo pacman -S fail2ban` | `sudo fail2ban-client status` |
 | lynis | `sudo pacman -S lynis` | `sudo lynis audit system` |
 | nmap | `sudo pacman -S nmap` | `sudo nmap -sV 192.168.1.5` |
