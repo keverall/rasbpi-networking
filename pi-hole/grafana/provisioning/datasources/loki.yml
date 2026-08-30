@@ -1,11 +1,16 @@
 apiVersion: 1
 
+# Loki datasource. The uid/name below adopt the Loki data source that is
+# already registered in this Grafana instance (uid ffwlmhwmpn9c0b, name "loki")
+# so provisioning updates it in place instead of creating a duplicate. This
+# keeps the existing Unbound "Logs" dashboard (which selects Loki by type via
+# a $DS_LOKI variable) working, and keeps the datasource trackable from git.
 datasources:
-  - name: Loki
+  - name: loki
     type: loki
     access: proxy
     url: http://127.0.0.1:3100
-    uid: loki
+    uid: ffwlmhwmpn9c0b
     isDefault: false
     jsonData:
       httpMethod: POST

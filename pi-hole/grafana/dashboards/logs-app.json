@@ -38,7 +38,7 @@
     {
       "datasource": {
         "type": "loki",
-        "uid": "loki"
+        "uid": "ffwlmhwmpn9c0b"
       },
       "description": "Log volume (lines/min) for the selected app",
       "fieldConfig": {
@@ -121,7 +121,7 @@
         {
           "datasource": {
             "type": "loki",
-            "uid": "loki"
+            "uid": "ffwlmhwmpn9c0b"
           },
           "expr": "sum(count_over_time({job=\"$app\"} |= \"$search\" [$__interval]))",
           "refId": "A"
@@ -133,7 +133,7 @@
     {
       "datasource": {
         "type": "loki",
-        "uid": "loki"
+        "uid": "ffwlmhwmpn9c0b"
       },
       "description": "",
       "fieldConfig": {
@@ -166,7 +166,7 @@
         {
           "datasource": {
             "type": "loki",
-            "uid": "loki"
+            "uid": "ffwlmhwmpn9c0b"
           },
           "expr": "{job=\"$app\"} |= \"$search\" | logfmt",
           "maxLines": 1000,
@@ -193,7 +193,7 @@
         "label": "App",
         "datasource": {
           "type": "loki",
-          "uid": "loki"
+          "uid": "ffwlmhwmpn9c0b"
         },
         "definition": "label_values(job)",
         "query": "label_values(job)",
