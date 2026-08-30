@@ -14,7 +14,7 @@ ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no -o BatchMode=yes pi-network
 
 ## Update Upstream Images
 
-Pulls latest versions of externally hosted images (Prometheus, Grafana, Node Exporter, cAdvisor, Pi-hole Exporter).
+Pulls latest versions of externally hosted images (Prometheus, Grafana, Node Exporter, Pi-hole Exporter).
 
 ```bash
 ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker compose pull && docker compose up -d"
@@ -70,9 +70,6 @@ ssh pi-networking@192.168.1.5 "docker ps --format 'table {{.Names}}\t{{.Image}}\
 # Unbound version
 ssh pi-networking@192.168.1.5 "docker exec unbound /opt/unbound/sbin/unbound -V 2>&1 | grep Version"
 
-# cAdvisor version
-ssh pi-networking@192.168.1.5 "docker exec cadvisor /usr/bin/cadvisor --version 2>&1 | head -1"
-
 # Pi-hole version
 ssh pi-networking@192.168.1.5 "docker exec pihole pihole -v 2>&1 | head -1"
 
@@ -126,7 +123,6 @@ ssh pi-networking@192.168.1.5 "docker container prune -f"
 | Service | Image | Version |
 |---------|-------|---------|
 | Unbound | local/unbound-rpi:1.26.0 | 1.26.0 (compiled from source) |
-| cAdvisor | ghcr.io/google/cadvisor:latest | v0.60.5 |
 | Pi-hole | local/pihole:arm64 | v6.4.3 |
 | Prometheus | prom/prometheus:latest | 3.14.0 |
 | Grafana | grafana/grafana:latest | 13.2.0 |

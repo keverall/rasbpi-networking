@@ -1,73 +1,37 @@
 # Monitoring Stack Guide
 
-Your Pi-hole stack includes two complementary monitoring tools: **Uptime Kuma** and **Alertmanager**.
+The Pi-hole stack ships with monitoring built on Prometheus, Alertmanager,
+Grafana, Loki, and Promtail. All services run with `network_mode: host` on the
+Pi (`192.168.1.5` on the LAN).
 
-## Quick Comparison
+> `Uptime Kuma` is **not** part of this stack (the service was removed to reduce
+> Pi CPU load). References to it in older notes are stale.
 
-| Feature | Uptime Kuma | Alertmanager |
+## Components
+
+| Component | Purpose | LAN URL |
 | --- | --- | --- |
-| **Purpose** | Is my service reachable? | Is my CPU/disk too high? |
-| **Monitors** | HTTP, TCP, ping | Metrics thresholds |
-| **UI** | Pretty status pages | None (API only) |
-| **Setup** | Simple, no config | YAML config files |
-| **Integrates with** | Standalone | Prometheus |
-
----
-
-## Uptime Kuma
-
-**URL**: `http://192.168.1.5:3100`
-
-### Setup
-
-1. Navigate to `http://192.168.1.5:3100`
-2. Create admin account on first visit
-3. Click **+ Add New Monitor**
-
-### Monitor Types
-
-| Type | Use Case | Example |
-|------|----------|---------|
-| HTTP(s) | Website uptime | Pi-hole web UI |
-| TCP Port | Service availability | DNS port 53 |
-| Ping | ICMP reachability | Gateway 192.168.1.1 |
-| DNS | DNS resolution | Query pi.hole |
-
-### Recommended Monitors
-
-| Name | Type | URL/Address | Port |
-| --- | --- | --- | --- |
-| Pi-hole Web | HTTP(s) | http://192.168.1.5:80 | 80 |
-| Pi-hole DNS | TCP Port | http://192.168.1.5:53 | 53 |
-| Unbound DNS | TCP Port | http://192.168.1.5:5335 | 5335 |
-| Grafana | HTTP(s) | http://192.168.1.5:3000 | 3000 |
-| Gateway | Ping | 192.168.1.1 | - |
-| Internet | HTTP(s) | https://google.com | 443 |
-
-### Notifications
-
-Settings → Notifications → Add:
-
-- Email (SMTP)
-- Discord
-- Slack
-- Telegram
-- Pushover
+| Prometheus | Scrape & store metrics | http://192.168.1.5:9090 |
+| Alertmanager | Route alerts from Prometheus | http://192.168.1.5:9093 |
+| Grafana | Dashboards (Prometheus + Loki) | http://192.168.1.5:3000 |
+| Loki / Promtail | Log aggregation & shipping | (queried via Grafana) |
 
 ---
 
 ## Alertmanager
 
-**URL**: `http://192.168.1.5:9093`
+**URL**: http://192.168.1.5:9093
 
-### How It Works
+### How it works
 
-1. **Prometheus** evaluates alert rules every 15s
-2. When threshold exceeded → sends alert to **Alertmanager**
-3. **Alertmanager** deduplicates, groups, routes alerts
-4. You receive notification (currently configured: none)
+1. Prometheus evaluates alert rules every 15s (`scrape_interval` in
+   `pi-hole/prometheus/prometheus.yml`).
+2. When a threshold is exceeded, Prometheus sends the alert to Alertmanager.
+3. Alertmanager deduplicates, groups, and routes alerts.
+4. Notifications are sent per `pi-hole/alertmanager/config.yml` (currently none
+   configured by default).
 
-### Pre-configured Alerts
+### Pre-configured alerts (`pi-hole/prometheus/alert_rules.yml`)
 
 | Alert | Condition | Severity |
 | --- | --- | --- |
@@ -75,26 +39,21 @@ Settings → Notifications → Add:
 | HighCPUUsage | CPU > 80% for 10m | Warning |
 | HighMemoryUsage | Memory > 85% for 10m | Warning |
 | DiskSpaceLow | Disk > 90% for 10m | Critical |
-| ContainerDown | Monitoring container down 5m | Warning |
+| ContainerDown | `node_exporter` down 5m | Warning |
 
-### Adding Notifications
+### Adding notifications
 
-Edit `pi-hole/alertmanager/config.yml`:
+Edit `pi-hole/alertmanager/config.yml`. Example (Discord):
 
 ```yaml
+route:
+  receiver: 'discord'
 receivers:
   - name: 'discord'
     discord_configs:
       - webhook_url: 'YOUR_DISCORD_WEBHOOK_URL'
         title: 'Pi-hole Alert'
-        text: '{{ .CommonAnnotations.description }}'
-```
-
-Then update route:
-
-```yaml
-route:
-  receiver: 'discord'
+        text: '{{ .CommonAnnotations.summary }}'
 ```
 
 Restart:
@@ -103,46 +62,52 @@ Restart:
 cd pi-hole && docker compose restart alertmanager
 ```
 
-### Viewing Alerts
+### Viewing alerts
 
-- **Active alerts**: `http://192.168.1.5:9093/#/alerts`
-- **Prometheus rules**: `http://192.168.1.5:9090/alerts`
+- Active alerts: http://192.168.1.5:9093/#/alerts
+- Prometheus rules: http://192.168.1.5:9090/alerts
 
 ---
 
-## Grafana Dashboards
+## Grafana dashboards
 
-**URL**: `http://192.168.1.5:3000`
+**URL**: http://192.168.1.5:3000
 
-### Data Sources
+### Data sources
 
-- Prometheus: `http://192.168.1.5:9090`
+- Prometheus: http://192.168.1.5:9090
+- Loki: http://192.168.1.5:3100
 
-### Useful Panels
+### Useful panels (PromQL)
 
 - CPU usage: `100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)`
 - Memory usage: `(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100`
 - DNS queries: `rate(pihole_dns_queries_total[5m])`
 
+### Recommended dashboard IDs
+
+- Node Exporter Full — `1860`
+- Pi-hole — `9658`
+
 ---
 
 ## Maintenance
 
-### Restart Services
+### Restart services
 
 ```bash
-cd pi-hole
-docker compose restart alertmanager uptime-kuma
+cd pi-hole && docker compose restart alertmanager prometheus grafana loki promtail
 ```
 
-### View Logs
+### View logs
 
 ```bash
 docker logs -f alertmanager
-docker logs -f uptime-kuma
+docker logs -f prometheus
 ```
 
 ### Backup
 
-- Uptime Kuma data: `pi-hole/uptime-kuma/`
 - Alertmanager config: `pi-hole/alertmanager/config.yml`
+- Grafana data: `pi-hole/grafana/` (runtime DB is git-ignored)
+- Prometheus data: `pi-hole/prometheus/` (TSDB volume)

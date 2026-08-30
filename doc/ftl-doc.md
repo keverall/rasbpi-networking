@@ -26,10 +26,10 @@ services:
   config separators). Both lines set the **same** credential, so the web UI and
   the FTL HTTP API share one password.
 
-> `PIHOLE_API` (also present in `pi-hole/.env.example`) is a **separate** API
-> token used for token-based auth (e.g. by `pihole_exporter` via
-> `?auth=<token>`). It is **not** the web/admin password and is not what
-> `/api/auth` validates.
+> `PIHOLE_API` still appears in `pi-hole/.env.example` but is **unused** by this
+> stack. The `pihole_exporter` service authenticates with the web/admin password
+> via the `PIHOLE_PASSWORD` environment variable (set from `WEBPASSWORD`), not a
+> separate token. The `PIHOLE_API` line can be ignored or removed.
 
 ## Authenticating to the FTL API
 
@@ -73,7 +73,8 @@ services:
 ## Notes
 
 - `pi-hole/.env` is listed in `.gitignore` and must **never** be committed. It
-  contains `WEBPASSWORD` and `PIHOLE_API`.
+  contains `WEBPASSWORD` (and, for backwards-compatibility, an unused
+  `PIHOLE_API` line).
 - Never paste real passwords into repository files or documentation — always read
   them at runtime as shown above.
 - After changing `WEBPASSWORD` in `.env`, recreate the container:
