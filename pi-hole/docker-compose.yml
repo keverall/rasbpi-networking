@@ -86,8 +86,8 @@ services:
     container_name: pihole_exporter
     network_mode: host
     environment:
-      PIHOLE_HOSTNAME: pi.hole
-      PIHOLE_API: ${PIHOLE_API}
+      PIHOLE_HOSTNAME: 127.0.0.1
+      PIHOLE_PASSWORD: ${WEBPASSWORD}
       PORT: '9617'
     restart: unless-stopped
   node_exporter:
