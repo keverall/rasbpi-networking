@@ -5,7 +5,7 @@ Your Pi-hole stack includes two complementary monitoring tools: **Uptime Kuma** 
 ## Quick Comparison
 
 | Feature | Uptime Kuma | Alertmanager |
-|---------|-------------|--------------|
+| --- | --- | --- |
 | **Purpose** | Is my service reachable? | Is my CPU/disk too high? |
 | **Monitors** | HTTP, TCP, ping | Metrics thresholds |
 | **UI** | Pretty status pages | None (API only) |
@@ -19,6 +19,7 @@ Your Pi-hole stack includes two complementary monitoring tools: **Uptime Kuma** 
 **URL**: `http://192.168.1.5:3100`
 
 ### Setup
+
 1. Navigate to `http://192.168.1.5:3100`
 2. Create admin account on first visit
 3. Click **+ Add New Monitor**
@@ -35,16 +36,18 @@ Your Pi-hole stack includes two complementary monitoring tools: **Uptime Kuma** 
 ### Recommended Monitors
 
 | Name | Type | URL/Address | Port |
-|------|------|-------------|------|
-| Pi-hole Web | HTTP(s) | http://192.168.1.5 | 80 |
-| Pi-hole DNS | TCP Port | 192.168.1.5 | 53 |
-| Unbound DNS | TCP Port | 192.168.1.5 | 5335 |
-| Grafana | HTTP(s) | http://192.168.1.5 | 3000 |
+| --- | --- | --- | --- |
+| Pi-hole Web | HTTP(s) | http://192.168.1.5:80 | 80 |
+| Pi-hole DNS | TCP Port | http://192.168.1.5:53 | 53 |
+| Unbound DNS | TCP Port | http://192.168.1.5:5335 | 5335 |
+| Grafana | HTTP(s) | http://192.168.1.5:3000 | 3000 |
 | Gateway | Ping | 192.168.1.1 | - |
 | Internet | HTTP(s) | https://google.com | 443 |
 
 ### Notifications
+
 Settings → Notifications → Add:
+
 - Email (SMTP)
 - Discord
 - Slack
@@ -58,6 +61,7 @@ Settings → Notifications → Add:
 **URL**: `http://192.168.1.5:9093`
 
 ### How It Works
+
 1. **Prometheus** evaluates alert rules every 15s
 2. When threshold exceeded → sends alert to **Alertmanager**
 3. **Alertmanager** deduplicates, groups, routes alerts
@@ -66,7 +70,7 @@ Settings → Notifications → Add:
 ### Pre-configured Alerts
 
 | Alert | Condition | Severity |
-|-------|-----------|----------|
+| --- | --- | --- |
 | PiHoleDown | Pi-hole unreachable for 5m | Critical |
 | HighCPUUsage | CPU > 80% for 10m | Warning |
 | HighMemoryUsage | Memory > 85% for 10m | Warning |
@@ -87,12 +91,14 @@ receivers:
 ```
 
 Then update route:
+
 ```yaml
 route:
   receiver: 'discord'
 ```
 
 Restart:
+
 ```bash
 cd pi-hole && docker compose restart alertmanager
 ```
@@ -109,9 +115,11 @@ cd pi-hole && docker compose restart alertmanager
 **URL**: `http://192.168.1.5:3000`
 
 ### Data Sources
+
 - Prometheus: `http://192.168.1.5:9090`
 
 ### Useful Panels
+
 - CPU usage: `100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)`
 - Memory usage: `(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100`
 - DNS queries: `rate(pihole_dns_queries_total[5m])`
@@ -121,17 +129,20 @@ cd pi-hole && docker compose restart alertmanager
 ## Maintenance
 
 ### Restart Services
+
 ```bash
 cd pi-hole
 docker compose restart alertmanager uptime-kuma
 ```
 
 ### View Logs
+
 ```bash
 docker logs -f alertmanager
 docker logs -f uptime-kuma
 ```
 
 ### Backup
+
 - Uptime Kuma data: `pi-hole/uptime-kuma/`
 - Alertmanager config: `pi-hole/alertmanager/config.yml`
