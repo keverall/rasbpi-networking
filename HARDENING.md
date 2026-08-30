@@ -75,12 +75,32 @@ desktop checkout.
   The `keverall` user already has keys in `~/.ssh/authorized_keys`, so this
   does not lock anyone out. `root` has no key → stays disabled.
 
-### 4. SD failsafe
-- `/etc/fstab` root line:
+### 4. Root failsafe (OS now lives on the USB SSD)
+- `/etc/fstab` root line (SSD `sda2`):
   ```fstab
-  PARTUUID=0ca05afd-02  /  ext4  defaults,noatime,errors=remount-ro  0  1
+  PARTUUID=86d791ad-02  /  ext4  defaults,noatime,errors=remount-ro  0  1
   ```
-  A detected corruption remounts read-only instead of wedging the box.
+  A detected corruption remounts read-only instead of wedging the box. (Originally
+  the SD's `0ca05afd-02`; the OS was migrated to the SSD — see §5.)
+
+### 5. OS on USB SSD (boot from USB; SD card removed)
+- The OS was cloned from the SD to the USB SSD and the Pi now **boots from the SSD
+  with no SD card installed**, eliminating the SD-card death risk (failure mode #2).
+- Reproducible method: `rsync` the SD's boot partition (`/boot/firmware`) → SSD
+  `sda1` (vfat) and the rootfs (`/`) → SSD `sda2` (ext4), generating a **fresh SSD
+  PARTUUID** so it never clashes with the SD's. SSD `cmdline.txt`/`fstab` point at
+  the SSD's own IDs:
+  - boot `/boot/firmware` → `PARTUUID=86d791ad-01`
+  - root `/` → `PARTUUID=86d791ad-02` (ext4, `defaults,noatime,errors=remount-ro`)
+  - the old `/mnt/ssd` data-mount line was dropped from the SSD `fstab`.
+- Boot order: EEPROM `BOOT_ORDER=0xf14` = USB(4) → SD(1) → reboot, i.e.
+  **USB-first with SD fallback**. (Read LSB-first; `0xf41` would be SD-first — do NOT
+  use it.) The SSD is now primary; the SD (if reinserted) is only a fallback.
+- **`dnscrypt-proxy` disabled + masked.** Its socket-activated unit was holding
+  `127.0.2.1:53`, which blocked Pi-hole's FTL from binding port 53 (DNS was fully
+  down, container `unhealthy`). Disabling/masking it freed port 53; Pi-hole→unbound
+  is the DNS path. If a systemd socket ever holds `:53` again, that is the first
+  thing to check.
 
 All of the above take effect on the next **reboot**.
 
@@ -102,10 +122,6 @@ Test an **SSH key** login before trusting password-off.
 ## RECOMMENDED (not yet done)
 
 ### High value
-- **Migrate the OS to the SSD.** The Pi has an unused SSD mounted at `/mnt/ssd`;
-  booting from USB SSD instead of the SD card is the single biggest protection
-  against SD death. Clone rootfs → SSD, point bootloader/cmdline `root=` at the
-  SSD PARTUUID.
 - **Router DHCP reservation** for `192.168.1.5` (belt-and-suspenders with the
   static IP) so the address is stable even if DHCP reassigned.
 - **Bind Pi-hole explicitly** to `192.168.1.5` (it currently listens on all
