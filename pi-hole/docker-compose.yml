@@ -197,19 +197,6 @@ services:
     cpus: 0.2
     cpu_shares: 128
 
-  uptime-kuma:
-    image: louislam/uptime-kuma:latest
-    container_name: uptime-kuma
-    network_mode: host
-    volumes:
-    - ./uptime-kuma:/app/data
-    restart: unless-stopped
-    # Medium: uptime monitoring
-    mem_reservation: 128m
-    mem_limit: 512m
-    cpus: 0.3
-    cpu_shares: 256
-
   loki:
     image: grafana/loki:latest
     container_name: loki
