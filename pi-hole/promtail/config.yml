@@ -25,7 +25,7 @@ scrape_configs:
       - labeldrop:
           - filename
       - match:
-            selector: '{app="unbound"} |~ " start | stopped |.*in-addr.arpa."'
+          selector: '{app="unbound"} |~ " start | stopped |.*in-addr.arpa."'
           action: drop
       - match:
           selector: '{app="unbound"} |= "reply:"'
