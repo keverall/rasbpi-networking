@@ -68,9 +68,9 @@ services:
     volumes:
     - ./unbound:/etc/unbound:ro
     command:
-    - /usr/local/bin/unbound_exporter
     # ar51an/unbound-exporter: scrape via TLS over the unbound control socket.
     # Certs are the unbound remote-control certs in the mounted config dir.
+    # (The binary is the image ENTRYPOINT, so only flags go here.)
     - -u
     - tcp://127.0.0.1:8953
     - -s
