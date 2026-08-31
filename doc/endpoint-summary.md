@@ -54,6 +54,7 @@ the single datasource for Grafana.
 | node_exporter | 9100 | http://127.0.0.1:9100/metrics |
 | raspi_exporter | 9779 | http://127.0.0.1:9779/metrics |
 | grafana | 3000 | http://127.0.0.1:3000/ |
+| cadvisor | 8080 | http://127.0.0.1:8080/metrics |
 
 ## Grafana setup
 
@@ -65,5 +66,5 @@ the single datasource for Grafana.
   - Raspberry Pi metrics — search Grafana.com for a `raspi_exporter` dashboard, or
     build a small custom one (temp / throttling / volts / freq).
 
-> `cAdvisor` is **not** deployed in this stack, so there is no `:8080/metrics`
-> endpoint or `cadvisor` scrape job.
+> `cAdvisor` **is** deployed in this stack (port 8080) and scraped by the
+> `cadvisor` job, providing `container_*` metrics for the per-container panels.

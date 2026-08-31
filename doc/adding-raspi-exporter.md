@@ -33,6 +33,6 @@ http://127.0.0.1:9090/targets.
 
 ## Note
 
-`cAdvisor` is **not** part of this stack (it was removed to reduce Pi CPU load),
-so there is no container-metrics exporter. Host metrics come from
-`node_exporter`; board metrics come from `raspi_exporter`.
+`cAdvisor` **is** part of this stack (port 8080, scraped by the `cadvisor` job),
+providing `container_*` metrics for the per-container CPU/memory panels. Host
+metrics come from `node_exporter`; board metrics come from `raspi_exporter`.

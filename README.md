@@ -105,7 +105,8 @@ When you type a website like example.com into your browser, the request follows 
   performance, bound to `127.0.0.1:5335`.
 - Exporters and monitoring:
   - `pihole_exporter` — Pi-hole metrics (port 9617)
-  - `unbound_exporter` — Unbound metrics (port 9167)
+  - `unbound_exporter` — Unbound metrics, ar51an/unbound-exporter (port 9167; requires `extended-statistics: yes` in unbound)
+  - `cadvisor` — per-container CPU/memory/network metrics (port 8080)
   - `node_exporter` — host/system metrics (port 9100)
   - `raspi_exporter` — Raspberry Pi thermal/voltage metrics (port 9779)
   - `prometheus` — scrapes the exporters and stores metrics (port 9090)
@@ -113,8 +114,9 @@ When you type a website like example.com into your browser, the request follows 
   - `alertmanager` — routes alerts from Prometheus (port 9093)
   - `loki` + `promtail` — log aggregation
 
-> NOTE: `cAdvisor` and `Uptime Kuma` are **not** part of this stack. They were
-> removed to reduce Pi CPU load; references to them in older notes are stale.
+> NOTE: `Uptime Kuma` is **not** part of this stack (removed to reduce Pi CPU
+> load). `cAdvisor` *is* deployed (port 8080) to feed the per-container CPU/memory
+> panels; older notes claiming it is absent are stale.
 
 ### Dashboards
 

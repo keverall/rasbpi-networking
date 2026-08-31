@@ -69,16 +69,26 @@ services:
     - ./unbound:/etc/unbound:ro
     command:
     - /usr/local/bin/unbound_exporter
-    - -unbound.host
-    - 127.0.0.1:8953
-    environment:
-      UNBOUND_HOST: unbound
-      UNBOUND_PORT: 8953
+    # ar51an/unbound-exporter: scrape via TLS over the unbound control socket.
+    # Certs are the unbound remote-control certs in the mounted config dir.
+    - -u
+    - tcp://127.0.0.1:8953
+    - -s
+    - /etc/unbound/unbound_server.pem
+    - -c
+    - /etc/unbound/unbound_control.pem
+    - -k
+    - /etc/unbound/unbound_control.key
+    # No blocklist configured; point blocklist counter at /dev/null so it
+    # reports 0 instead of erroring.
+    - -b
+    - /dev/null
+    - -a
+    - 0.0.0.0:9167
     depends_on:
     - unbound
     restart: unless-stopped
-    network_mode: host
-    # Lightweight: exposes DNS metrics
+    # Lightweight: exposes DNS metrics (matches the Unbound 18077 dashboard)
     mem_reservation: 32m
     mem_limit: 128m
     cpus: 0.2
@@ -96,6 +106,25 @@ services:
     mem_limit: 2g
     cpus: 1.0
     cpu_shares: 512
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    network_mode: host
+    privileged: true
+    volumes:
+    - /:/rootfs:ro
+    - /var/run:/var/run:ro
+    - /sys:/sys:ro
+    - /var/lib/docker/:/var/lib/docker:ro
+    - /var/lib/containerd/:/var/lib/containerd:ro
+    restart: unless-stopped
+    # Exposes container_* metrics (CPU/memory/network) on :8080 for the
+    # "Container CPU" / "Container Memory" dashboard panels.
+    mem_reservation: 64m
+    mem_limit: 256m
+    cpus: 0.5
+    cpu_shares: 256
 
   grafana:
     image: grafana/grafana:latest

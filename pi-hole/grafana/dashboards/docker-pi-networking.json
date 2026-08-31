@@ -56,7 +56,7 @@
         "orientation": "auto",
         "reduceOptions": {"calcs": ["lastNotNull"]}
       },
-      "targets": [{"expr": "count(container_last_seen{name=~\".+\"}) - count(container_state_running{name=~\".+\"} == 1)", "refId": "A"}],
+      "targets": [{"expr": "count(container_last_seen{name=~\".+\"}) - count(container_tasks_state{state=\"running\"} > 0)", "refId": "A"}],
       "title": "Stopped",
       "type": "stat"
     },

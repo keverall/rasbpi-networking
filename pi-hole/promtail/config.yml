@@ -22,6 +22,30 @@ scrape_configs:
         labels:
           job: unbound
           __path__: /var/log/unbound/*.log
+    # Tag each line so the Unbound 18077 dashboard's Loki panels
+    # ({dns="reply"} / {dns="block"}) can select them.
+    # unbound reply/query lines (log-tag-queryreply: yes) look like:
+    #   2026-08-31 17:00:00 [reply] <client> <domain> <type> <class> <rcode> <ttl> <len>
+    pipeline_stages:
+      - regex:
+          expression: '^\S+\s+\S+\s+\[(?P<tag>reply|query|local|serve-expired|nside|prefetch)\]\s+\S.*$'
+      - labels:
+          dns:
+            from: tag
+            values:
+              reply: 'reply'
+              query: 'query'
+              local: 'block'
+              'serve-expired': 'reply'
+              nside: 'reply'
+              prefetch: 'reply'
+      # Replies served from a blocklist (local-zone always/redirect) are still
+      # logged as replies; relabel them as blocks for the dashboard.
+      - match:
+          selector: '{dns="reply"} |~ "(?i)always|redirect|block"'
+          stages:
+            - labels:
+                dns: 'block'
 
   # Docker container logs: read stdout/stderr JSON log files from the Docker
   # daemon's container log directory. This captures logs from containers that
