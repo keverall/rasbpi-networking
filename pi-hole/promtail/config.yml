@@ -1,6 +1,7 @@
 server:
   http_listen_port: 9080
   grpc_listen_port: 0
+  log_level: warn
 
 positions:
   filename: /tmp/positions.yaml
@@ -10,48 +11,35 @@ clients:
 
 scrape_configs:
 
-  # Unbound: read log file written by the unbound container (logfile: var/log/unbound.log)
-  # The file is at /var/log/unbound/unbound.log inside this container via the
-  # bind-mount ./unbound/var/log → /var/log/unbound:ro
-  # No pipeline_stages needed — unbound writes plain text, not Docker JSON.
-  # Promtail uses its ingestion timestamp.
+  # Unbound: read the logfile written by the unbound container
+  # (./unbound/var/log → /var/log/unbound, bind-mounted read-only here).
+  # Mirror ar51an/unbound-dashboard release config: label each reply/block line
+  # so dashboard 18077's Loki panels ({dns="reply"} / {dns="block"}) select them.
   - job_name: unbound
     static_configs:
       - targets:
           - localhost
         labels:
           job: unbound
-          __path__: /var/log/unbound/*.log
-    # Tag each line so the Unbound 18077 dashboard's Loki panels
-    # ({dns="reply"} / {dns="block"}) can select them.
-    # unbound reply/query lines (log-tag-queryreply: yes) look like:
-    #   2026-08-31 17:00:00 [reply] <client> <domain> <type> <class> <rcode> <ttl> <len>
+          __path__: /var/log/unbound/unbound.log
     pipeline_stages:
-      - regex:
-          expression: '^\S+\s+\S+\s+(?:\[)?(?P<tag>reply|query|local|serve-expired|nside|prefetch)(?:\])?.*$'
-      - labels:
-          dns:
-            from: tag
-            values:
-              reply: 'reply'
-              query: 'query'
-              local: 'block'
-              'serve-expired': 'reply'
-              nside: 'reply'
-              prefetch: 'reply'
-      # Replies served from a blocklist (local-zone always/redirect) are still
-      # logged as replies; relabel them as blocks for the dashboard.
+      - labeldrop:
+          - filename
       - match:
-          selector: '{dns="reply"} |~ "(?i)always|redirect|block"'
+          selector: '{job="unbound"} |~ " start | stopped |.*in-addr.arpa."'
+          action: drop
+      - match:
+          selector: '{job="unbound"} |= "reply:"'
           stages:
-            - labels:
-                dns: 'block'
+          - static_labels:
+              dns: reply
+      - match:
+          selector: '{job="unbound"} |~ "always_null|redirect |always_nxdomain"'
+          stages:
+          - static_labels:
+              dns: block
 
-  # Docker container logs: read stdout/stderr JSON log files from the Docker
-  # daemon's container log directory. This captures logs from containers that
-  # write to the Docker logging driver (default json-file), e.g., Pi-hole,
-  # Grafana, Prometheus, Loki, node_exporter, etc.
-  # Requires /var/lib/docker/containers mounted read-only (see docker-compose.yml).
+  # Docker container logs (stdout/stderr JSON) from all other containers.
   - job_name: containers
     static_configs:
       - targets:
@@ -59,7 +47,7 @@ scrape_configs:
         labels:
           job: containers
           __path__: /var/lib/docker/containers/*/*-json.log
-    pipeline_stages:
+    pipeline-stages:
       - docker: {}
       - timestamp:
           source: time
