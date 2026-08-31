@@ -39,5 +39,7 @@ if [ -x /opt/unbound/sbin/unbound-anchor ]; then
 fi
 
 echo "[entrypoint] exec unbound in foreground (stderr->stdout, verbose)" >&2
-# Run unbound in foreground and redirect stderr to stdout so Docker captures all output
-exec /opt/unbound/sbin/unbound -d -v -c "$CONF_DIR/unbound.conf" 2>&1
+# Run unbound in foreground (no -v: verbosity 0 is driven by unbound.conf, so
+# we don't flood the logfile with per-query info: lines). Redirect stderr to
+# stdout so Docker captures any startup errors.
+exec /opt/unbound/sbin/unbound -d -c "$CONF_DIR/unbound.conf" 2>&1

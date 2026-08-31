@@ -32,6 +32,14 @@ scrape_configs:
           stages:
             - static_labels:
                 dns: reply
+            # Normalise the syslog-style line
+            #   "Aug 31 21:35:26 unbound[1:0] reply: <client> <domain> <type> <class> <rcode> <time> <cache> <len>"
+            # into the 11-field shape dashboard 18077's `| pattern` expects, with
+            # the client at field 4 (pattern ignores fields 1-3). Trailing fields
+            # beyond the pattern length are ignored by Loki's pattern parser.
+            - replace:
+                expression: '^.*unbound\[[\d:]+\] reply: (.*)$'
+                replace: '0 0 0 $1'
       - match:
           selector: '{job="unbound"} |~ "always_null|redirect |always_nxdomain"'
           stages:
