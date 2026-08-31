@@ -19,16 +19,16 @@ scrape_configs:
       - targets:
           - localhost
         labels:
-          job: unbound
+          app: unbound
           __path__: /var/log/unbound/unbound.log
     pipeline_stages:
       - labeldrop:
           - filename
       - match:
-          selector: '{job="unbound"} |~ " start | stopped |.*in-addr.arpa."'
+            selector: '{app="unbound"} |~ " start | stopped |.*in-addr.arpa."'
           action: drop
       - match:
-          selector: '{job="unbound"} |= "reply:"'
+          selector: '{app="unbound"} |= "reply:"'
           stages:
             - static_labels:
                 dns: reply
@@ -51,7 +51,7 @@ scrape_configs:
                 expression: '^(.*)$'
                 replace: '0 0 0 {{ .Value }}'
       - match:
-          selector: '{job="unbound"} |~ "always_null|redirect |always_nxdomain"'
+          selector: '{app="unbound"} |~ "always_null|redirect |always_nxdomain"'
           stages:
             - static_labels:
                 dns: block
