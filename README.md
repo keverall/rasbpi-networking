@@ -1,10 +1,28 @@
 # rasbpi-networking
 
+- [rasbpi-networking](#rasbpi-networking)
+  - [What this project provides](#what-this-project-provides)
+    - [Dashboards](#dashboards)
+      - [PI-HOLE admin Dashboard](#pi-hole-admin-dashboard)
+      - [Node Exporter Full Dashboard](#node-exporter-full-dashboard)
+      - [Raspberry PI \& Docker Monitoring Dashboard](#raspberry-pi--docker-monitoring-dashboard)
+      - [Raspberry PI Overview Dashboard](#raspberry-pi-overview-dashboard)
+    - [Files of interest](#files-of-interest)
+    - [Docs (`doc/`)](#docs-doc)
+    - [Quick start (on the Pi)](#quick-start-on-the-pi)
+    - [Important environment variables](#important-environment-variables)
+    - [Runtime overview — what runs and why](#runtime-overview--what-runs-and-why)
+    - [Where data is persisted](#where-data-is-persisted)
+    - [API authentication / common pitfalls](#api-authentication--common-pitfalls)
+    - [Security notes](#security-notes)
+  - [Further reading \& troubleshooting](#further-reading--troubleshooting)
+
+
 A Docker-based Pi-hole stack for a Raspberry Pi 5 (arm64) plus a local
 monitoring stack. It runs Pi-hole with a local recursive resolver (Unbound) and
 Prometheus/Grafana/Loki monitoring on the Pi itself.
 
-![alt text](doc/pi-hole.png)
+
 
 ## What this project provides
 
@@ -24,7 +42,25 @@ Prometheus/Grafana/Loki monitoring on the Pi itself.
 > NOTE: `cAdvisor` and `Uptime Kuma` are **not** part of this stack. They were
 > removed to reduce Pi CPU load; references to them in older notes are stale.
 
-## Files of interest
+### Dashboards
+
+#### PI-HOLE admin Dashboard
+
+![alt text](doc/pi-hole.png)
+
+#### Node Exporter Full Dashboard
+
+![alt text](doc/node-exporter-full.png)
+
+#### Raspberry PI & Docker Monitoring Dashboard
+
+![alt text](doc/raspberry-pi-docker-monitoring.png)
+
+#### Raspberry PI Overview Dashboard
+
+![alt text](doc/raspberry-pi-overview.png)
+
+### Files of interest
 
 - `pi-hole/Dockerfile` — Dockerfile for the Pi-hole image build.
 - `pi-hole/Dockerfile.unbound` — Dockerfile that compiles Unbound from source.
@@ -50,7 +86,7 @@ Prometheus/Grafana/Loki monitoring on the Pi itself.
 - `doc/network-tools-guide.md` — LAN diagnostic tools (run from a desktop, not
   part of the Docker stack).
 
-## Quick start (on the Pi)
+### Quick start (on the Pi)
 
 1. Copy the example env file and edit values:
 
@@ -81,7 +117,7 @@ Prometheus/Grafana/Loki monitoring on the Pi itself.
    cd pi-hole && docker compose up -d --no-deps --force-recreate pihole
    ```
 
-## Important environment variables
+### Important environment variables
 
 Set these in `pi-hole/.env` (copy from `pi-hole/.env.example`):
 
@@ -98,7 +134,7 @@ in `docker-compose.yml` (Unbound at `127.0.0.1#5335`), not via `.env`.
 > The `PIHOLE_API` line that still appears in `.env.example` is **unused** by
 > this stack — the `pihole_exporter` authenticates with `WEBPASSWORD` instead.
 
-## Runtime overview — what runs and why
+### Runtime overview — what runs and why
 
 - `pihole` — Pi-hole web UI, pihole-FTL resolver and API (the DNS-blocking core).
 - `unbound` — recursive resolver bound to `127.0.0.1:5335` (privacy; no external
@@ -111,7 +147,7 @@ in `docker-compose.yml` (Unbound at `127.0.0.1#5335`), not via `.env`.
 - `node_exporter`, `raspi_exporter` — host/board metrics for monitoring.
 - `loki`, `promtail` — collect and store container and Unbound logs.
 
-## Where data is persisted
+### Where data is persisted
 
 - Pi-hole config/gravity: `pi-hole/etc-pihole`
 - dnsmasq/Pi-hole DNS config: `pi-hole/etc-dnsmasq.d`
@@ -119,7 +155,7 @@ in `docker-compose.yml` (Unbound at `127.0.0.1#5335`), not via `.env`.
 - Prometheus/Grafana/Alertmanager/Loki: `pi-hole/prometheus`, `pi-hole/grafana`,
   `pi-hole/alertmanager`, `pi-hole/loki`
 
-## API authentication / common pitfalls
+### API authentication / common pitfalls
 
 Pi-hole v6 API uses session IDs (`sid`) and CSRF tokens for cookie-based auth.
 Common options:
@@ -139,7 +175,7 @@ If you see `401 Unauthorized` on actionable endpoints, ensure:
   and cookie domain match the configured `webserver.domain` (see
   `pi-hole/etc-pihole/pihole.toml`).
 
-## Security notes
+### Security notes
 
 - This stack is for home/lab use. Do not expose the Pi-hole web UI or exporters
   to the public internet without a firewall / reverse-proxy auth.
