@@ -28,7 +28,7 @@ scrape_configs:
     #   2026-08-31 17:00:00 [reply] <client> <domain> <type> <class> <rcode> <ttl> <len>
     pipeline_stages:
       - regex:
-          expression: '^\S+\s+\S+\s+\[(?P<tag>reply|query|local|serve-expired|nside|prefetch)\]\s+\S.*$'
+          expression: '^\S+\s+\S+\s+(?:\[)?(?P<tag>reply|query|local|serve-expired|nside|prefetch)(?:\])?.*$'
       - labels:
           dns:
             from: tag
