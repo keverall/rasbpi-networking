@@ -6,13 +6,6 @@ providers:
     folder: ''
     type: file
     allowUiUpdates: true
+    disableSubfolders: true
     options:
       path: /var/lib/grafana/dashboards
-
-  - name: 'pihole'
-    orgId: 1
-    folder: 'Pi-hole'
-    type: file
-    allowUiUpdates: true
-    options:
-      path: /var/lib/grafana/dashboards/pihole
