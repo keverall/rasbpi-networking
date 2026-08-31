@@ -12,9 +12,8 @@ clients:
 scrape_configs:
 
   # Unbound: read the logfile written by the unbound container
-  # (./unbound/var/log → /var/log/unbound, bind-mounted read-only here).
-  # Mirror ar51an/unbound-dashboard release config: label each reply/block line
-  # so dashboard 18077's Loki panels ({dns="reply"} / {dns="block"}) select them.
+  # (./unbound/var/log -> /var/log/unbound, bind-mounted ro here).
+  # Tag reply/block lines with dns= so dashboard 18077's Loki panels select them.
   - job_name: unbound
     static_configs:
       - targets:
@@ -31,15 +30,15 @@ scrape_configs:
       - match:
           selector: '{job="unbound"} |= "reply:"'
           stages:
-          - static_labels:
-              dns: reply
+            - static_labels:
+                dns: reply
       - match:
           selector: '{job="unbound"} |~ "always_null|redirect |always_nxdomain"'
           stages:
-          - static_labels:
-              dns: block
+            - static_labels:
+                dns: block
 
-  # Docker container logs (stdout/stderr JSON) from all other containers.
+  # Docker container logs (stdout/stderr JSON) for other containers.
   - job_name: containers
     static_configs:
       - targets:
@@ -47,7 +46,7 @@ scrape_configs:
         labels:
           job: containers
           __path__: /var/lib/docker/containers/*/*-json.log
-    pipeline-stages:
+    pipeline_stages:
       - docker: {}
       - timestamp:
           source: time
