@@ -34,12 +34,22 @@ scrape_configs:
                 dns: reply
             # Normalise the syslog-style line
             #   "Aug 31 21:35:26 unbound[1:0] reply: <client> <domain> <type> <class> <rcode> <time> <cache> <len>"
-            # into the 11-field shape dashboard 18077's `| pattern` expects, with
-            # the client at field 4 (pattern ignores fields 1-3). Trailing fields
-            # beyond the pattern length are ignored by Loki's pattern parser.
+            # into the 11-field shape dashboard 18077's `| pattern` expects:
+            #   <_> <_> <_> <client> <domain> <type> <class> <rcode> <time> <cache> <len>
+            # with the client at field 4 (pattern ignores fields 1-3).
+            #
+            # Promtail's replace stage only replaces capture-group text, preserving
+            # non-captured parts of the match (unlike sed $1). So we use three
+            # stages: regex extracts the content after "reply: ", output replaces
+            # the log line with just that content (stripping the prefix), and a
+            # final replace prepends the three `0` sentinel fields.
+            - regex:
+                expression: '^.*unbound\[[\d:]+\] reply: (?P<content>.*)$'
+            - output:
+                source: content
             - replace:
-                expression: '^.*unbound\[[\d:]+\] reply: (.*)$'
-                replace: '0 0 0 $1'
+                expression: '^(.*)$'
+                replace: '0 0 0 {{ .Value }}'
       - match:
           selector: '{job="unbound"} |~ "always_null|redirect |always_nxdomain"'
           stages:
