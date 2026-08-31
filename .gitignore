@@ -54,4 +54,3 @@ pi-hole/unbound/*.pid
 pi-hole/unbound/var/log/*.log
 pi-hole/uptime-kuma/kuma.db*
 AGENTS.md
-HARDENING.md
