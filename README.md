@@ -28,6 +28,10 @@ A Docker-based Pi-hole stack for a Raspberry Pi 5 (arm64) plus a local
 monitoring stack. It runs Pi-hole with a local recursive resolver (Unbound) and
 Prometheus/Grafana/Loki monitoring on the Pi itself.
 
+This entire stack runs on an 8GB Pi 5 with almost 0% CPU usage.
+
+![pi-networking BTOP](doc/BTOP-on-pi-networking-full-load.png)
+
 ## But why what does pi-hole and unbound do
 
 - Pi-hole and Unbound work together to create a private, ad-blocking DNS server for your entire home network.  
