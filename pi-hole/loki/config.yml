@@ -28,3 +28,8 @@ limits_config:
   max_streams_per_user: 0
   max_line_size: 1048576
   allow_structured_metadata: false
+  # Default max_query_series is 500, but the Unbound dashboard's Top Client
+  # Queries panel (id=187) aggregates by domain+client across the full
+  # $__range (up to 24h), which exceeds 500 unique series. Increase to 50000
+  # to allow these aggregations to complete.
+  max_query_series: 50000
