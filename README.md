@@ -1,6 +1,11 @@
 # rasbpi-networking
 
 - [rasbpi-networking](#rasbpi-networking)
+  - [Overview](#overview)
+  - [But why what does pi-hole and unbound do](#but-why-what-does-pi-hole-and-unbound-do)
+    - [🛡️ What Pi-hole Does (The Gatekeeper)](#️-what-pi-hole-does-the-gatekeeper)
+  - [🕵️ What Unbound Does (The Private Investigator)](#️-what-unbound-does-the-private-investigator)
+    - [🔄 How They Work Together](#-how-they-work-together)
   - [What this project provides](#what-this-project-provides)
     - [Dashboards](#dashboards)
       - [PI-HOLE admin Dashboard](#pi-hole-admin-dashboard)
@@ -17,12 +22,77 @@
     - [Security notes](#security-notes)
   - [Further reading \& troubleshooting](#further-reading--troubleshooting)
 
+## Overview
 
 A Docker-based Pi-hole stack for a Raspberry Pi 5 (arm64) plus a local
 monitoring stack. It runs Pi-hole with a local recursive resolver (Unbound) and
 Prometheus/Grafana/Loki monitoring on the Pi itself.
 
+## But why what does pi-hole and unbound do
 
+- Pi-hole and Unbound work together to create a private, ad-blocking DNS server for your entire home network.  
+- When used alone, Pi-hole blocks ads and trackers 
+- but must still forward your safe web traffic to a commercial provider like Google or Cloudflare to find websites. 
+- Adding Unbound removes those corporations entirely, 
+- allowing your home network to look up websites safely and independently. [1, 2] 
+
+------------------------------
+
+### 🛡️ What Pi-hole Does (The Gatekeeper)
+
+[Pi-hole](https://docs.pi-hole.net/guides/dns/unbound/) acts as a local DNS filter for every device connected to your router. [2, 3] 
+
+- Blocks Ads Network-Wide: It prevents ads, tracking scripts, and telemetry data from loading on your phones, smart TVs, and computers.
+- Saves Bandwidth: Because ads are blocked before they ever download, your internet runs more efficiently.
+- Provides a Dashboard: It features a web user interface detailing which devices are making requests and what data is being blocked. [2, 4, 5] 
+
+## 🕵️ What Unbound Does (The Private Investigator)
+
+Unbound is a secure, local recursive DNS resolver. [3] 
+
+- Bypasses Upstream DNS: Instead of asking Google (8.8.8.8) or Cloudflare (1.1.1.1) to locate a website, Unbound contacts the internet's global DNS root servers directly. [1, 2, 6] 
+- Prevents Profiling: No external company gets a full logging history of every domain you visit. [2, 7] 
+- Increases Security: It performs native DNSSEC validation to verify that the website addresses returned to you have not been altered or spoofed by hackers. [8, 9]
+  
+------------------------------
+
+### 🔄 How They Work Together
+
+When you type a website like example.com into your browser, the request follows this process:
+
+[Your Device]
+     │
+     ▼
+[Pi-hole] ──(Is it an ad?)──► YES ──► [Block Request]
+     │
+     NO
+     ▼
+[Unbound] ──(Queries Root Servers directly)──► [Finds Website IP]
+     │
+     ▼
+[Your Device] ──► Opens Website
+
+   1. The Check: Your device asks Pi-hole to resolve a domain.
+   2. The Filter: If the domain is an ad or malware, Pi-hole blocks it instantly.
+   3. The Search: If the domain is safe, Pi-hole passes it to Unbound.
+   4. The Resolution: Unbound finds the address directly from the source and hands it back to Pi-hole, keeping your browsing habits local and hidden from third-party tech giants. [1, 2, 7, 10, 11] 
+
+------------------------------
+
+[1] [https://www.youtube.com](https://www.youtube.com/watch?v=oh2FUzAa5s8&t=719)
+[2] [https://techodash.com](https://techodash.com/soho-reviews-pi-hole-unbound-review/)
+[3] [https://docs.pi-hole.net](https://docs.pi-hole.net/guides/dns/unbound/)
+[4] [https://www.reddit.com](https://www.reddit.com/r/pihole/comments/196xn2q/unbound_vs_pihole_navigating_the_adblocking/)
+[5] [https://www.youtube.com](https://www.youtube.com/watch?v=6sznCZ7ttbI)
+[6] [https://medium.com](https://medium.com/@rajthiru6/the-ultimate-network-privacy-shield-pi-hole-unbound-f1d7b3b602f9)
+[7] [https://www.youtube.com](https://www.youtube.com/watch?v=Y3nm519xHfw)
+[8] [https://www.reddit.com](https://www.reddit.com/r/opnsense/comments/1h0raav/unbound_vs_pihole_or_unbound_pihole/)
+[9] [https://www.youtube.com](https://www.youtube.com/watch?v=X2J3a-x6nWA)
+[10] [https://www.reddit.com](https://www.reddit.com/r/pihole/comments/himrrj/how_does_unbound_work/)
+[11] [https://discourse.pi-hole.net](https://discourse.pi-hole.net/t/whats-the-difference-between-all-the-different-dns-stuff-unbound-local-dns-adguard-dns-nextdns-google-cloudflare/67974)
+[12] [https://www.youtube.com](https://www.youtube.com/watch?v=RoKi4-MCLRw&t=494)
+
+------------------------------
 
 ## What this project provides
 
