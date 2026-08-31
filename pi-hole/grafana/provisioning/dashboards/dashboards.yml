@@ -6,6 +6,5 @@ providers:
     folder: ''
     type: file
     allowUiUpdates: true
-    disableSubfolders: true
     options:
       path: /var/lib/grafana/dashboards
