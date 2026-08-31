@@ -107,25 +107,6 @@ services:
     cpus: 1.0
     cpu_shares: 512
 
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
-    container_name: cadvisor
-    network_mode: host
-    privileged: true
-    volumes:
-    - /:/rootfs:ro
-    - /var/run:/var/run:ro
-    - /sys:/sys:ro
-    - /var/lib/docker/:/var/lib/docker:ro
-    - /var/lib/containerd/:/var/lib/containerd:ro
-    restart: unless-stopped
-    # Exposes container_* metrics (CPU/memory/network) on :8080 for the
-    # "Container CPU" / "Container Memory" dashboard panels.
-    mem_reservation: 64m
-    mem_limit: 256m
-    cpus: 0.5
-    cpu_shares: 256
-
   grafana:
     image: grafana/grafana:latest
     container_name: grafana

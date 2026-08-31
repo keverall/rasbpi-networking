@@ -213,12 +213,12 @@
       "id": 9,
       "targets": [
         {
-          "expr": "container_memory_usage_bytes{name=~\".+\"}",
-          "legendFormat": "{{name}}",
+          "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
+          "legendFormat": "{{instance}}",
           "refId": "A"
         }
       ],
-      "title": "Container Memory",
+      "title": "Host Memory %",
       "type": "timeseries"
     },
     {
@@ -227,12 +227,12 @@
       "id": 10,
       "targets": [
         {
-          "expr": "rate(container_cpu_usage_seconds_total{name=~\".+\"}[5m]) * 100",
-          "legendFormat": "{{name}}",
+          "expr": "100 - (avg by(instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+          "legendFormat": "{{instance}}",
           "refId": "A"
         }
       ],
-      "title": "Container CPU",
+      "title": "Host CPU %",
       "type": "timeseries"
     }
   ],
