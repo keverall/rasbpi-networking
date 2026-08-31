@@ -65,6 +65,7 @@ services:
     build:
       context: ./unbound-exporter
     image: local/unbound_exporter:latest
+    network_mode: host
     volumes:
     - ./unbound:/etc/unbound:ro
     command:
