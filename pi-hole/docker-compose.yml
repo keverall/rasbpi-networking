@@ -115,6 +115,7 @@ services:
     network_mode: host
     volumes:
     - ./grafana:/var/lib/grafana
+    - ./grafana/provisioning:/etc/grafana/provisioning
     restart: unless-stopped
     # Important: dashboard rendering + alerting
     mem_reservation: 256m
