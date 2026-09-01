@@ -22,20 +22,41 @@ so they never start on boot, and turn OFF the kill switch (it injects
 persistent iptables/nft rules that block all traffic when the VPN is down):
 
 ```bash
-# kill switch config is owned by the daemon, so start it first
-sudo systemctl start proton.VPN.service
 # disable auto-connect on the 3 WireGuard profiles so they never start on boot
 sudo nmcli connection modify wg-CH-UK-2 connection.autoconnect no
 sudo nmcli connection modify wg-CH-US-3 connection.autoconnect no
 sudo nmcli connection modify wg-is-uk-1 connection.autoconnect no
-# kill switch adds iptables/nft rules that break connectivity when VPN is off
-protonvpn config set kill-switch off
 # stop + keep the daemon disabled
 sudo systemctl disable --now proton.VPN.service
 # flush any leftover firewall rules the kill switch left behind
 sudo nft flush ruleset
 sudo iptables -F
 sudo ip6tables -F
+```
+
+### Disable the kill switch
+
+The kill switch injects persistent iptables/nft rules that block ALL traffic
+when the VPN is down. `protonvpn config set kill-switch off` requires an active
+Proton session and often errors ("An unexpected error occurred"), so set it by
+editing the config files directly instead:
+
+```bash
+# user-level config (CLI/GUI read this)
+sed -i 's/"killswitch": 1/"killswitch": 0/' ~/.config/Proton/VPN/settings.json
+# root daemon config (authoritative when the VPN is actually connected)
+sudo sed -i 's/"killswitch": 1/"killswitch": 0/' /root/.config/Proton/VPN/settings.json 2>/dev/null \
+  || echo "root config absent — daemon will use its default (off)"
+# confirm
+grep killswitch ~/.config/Proton/VPN/settings.json
+sudo grep killswitch /root/.config/Proton/VPN/settings.json 2>/dev/null
+```
+
+If you are signed in and the CLI works, the equivalent is:
+```bash
+sudo systemctl start proton.VPN.service
+protonvpn config set kill-switch off
+sudo systemctl disable --now proton.VPN.service
 ```
 
 Verify nothing auto-connects:
