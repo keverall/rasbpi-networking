@@ -41,8 +41,7 @@ sudo ip6tables -F
 Verify nothing auto-connects:
 
 ```bash
-nmcli -g connection.id,connection.autoconnect connection show \
-  | grep -E "wg-|proton" 
+nmcli -g NAME,AUTOCONNECT connection show | grep -E "wg-|proton"
 # every wg-* line should now show 'no'
 systemctl is-enabled proton.VPN.service   # -> disabled
 ```
