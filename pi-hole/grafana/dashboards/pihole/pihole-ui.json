@@ -107,7 +107,7 @@
     },
     {
       "datasource": null,
-      "description": "Update the PiholeDevices variable with the total number of Pi-hole systems you have in Prometheus regardless of the Job they are assigned to.  This is to help identify a Pi-hole across the entire fleet of Pi-hole’s.  It is meant to give you an idea that there is a problem regardless of which device it is or the Prometheus Job it is in.\n\n“Total Pi-hole's” is the number of devices you are reporting in Prometheus.  This is a number that you must manually enter in the PiholeDevices variable.  Count every Pi-hole you have in Prometheus regardless of the Job it is in.\n\n“Pi-hole's Down” indicates that a Pi-hole is either down or not being scrapped in either this Job or any other Job.\n\n“Pi-hole's Disabled” represents a Pi-hole where it has been disabled but is still online.\n\n“Update Variable” indicates that you are scrapping more devices than you have entered in the PiholeDevices variable indicating a new device has come online.  Update the PiholeDevices variable to properly reflect the number of devices you expect to be reporting on.\n",
+      "description": "Update the PiholeDevices variable with the total number of Pi-hole systems you have in Prometheus regardless of the Job they are assigned to.  This is to help identify a Pi-hole across the entire fleet of Pi-hole\u2019s.  It is meant to give you an idea that there is a problem regardless of which device it is or the Prometheus Job it is in.\n\n\u201cTotal Pi-hole's\u201d is the number of devices you are reporting in Prometheus.  This is a number that you must manually enter in the PiholeDevices variable.  Count every Pi-hole you have in Prometheus regardless of the Job it is in.\n\n\u201cPi-hole's Down\u201d indicates that a Pi-hole is either down or not being scrapped in either this Job or any other Job.\n\n\u201cPi-hole's Disabled\u201d represents a Pi-hole where it has been disabled but is still online.\n\n\u201cUpdate Variable\u201d indicates that you are scrapping more devices than you have entered in the PiholeDevices variable indicating a new device has come online.  Update the PiholeDevices variable to properly reflect the number of devices you expect to be reporting on.\n",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1459,7 +1459,7 @@
       {
         "allValue": "",
         "current": {},
-        "datasource": "${DS_PROMETHEUS}",
+        "datasource": "ffc8zl3q8h4aod",
         "definition": "label_values(pihole_status,job)",
         "description": null,
         "error": null,
@@ -1486,7 +1486,7 @@
       {
         "allValue": null,
         "current": {},
-        "datasource": "${DS_PROMETHEUS}",
+        "datasource": "ffc8zl3q8h4aod",
         "definition": "query_result(pihole_status{job=~'$JobName'})",
         "description": null,
         "error": null,
@@ -1513,7 +1513,7 @@
       {
         "allValue": null,
         "current": {},
-        "datasource": "${DS_PROMETHEUS}",
+        "datasource": "ffc8zl3q8h4aod",
         "definition": "label_values(pihole_querytypes,type)",
         "description": "To filter out specific types use something similar to /^(?!ANY|DNSKEY|DS|HTTPS|MX|RRSIG|SOA|SVCB)/",
         "error": null,
