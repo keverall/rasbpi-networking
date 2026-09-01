@@ -2478,6 +2478,13 @@
           }
         },
         {
+          "id": "constant",
+          "options": {
+            "fieldName": "block",
+            "value": "0"
+          }
+        },
+        {
           "id": "convertFieldType",
           "options": {
             "conversions": [
@@ -2802,17 +2809,24 @@
       "title": "\u29c9 Top Client Queries",
       "transformations": [
         {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "number",
+                "targetField": "Value #A"
+              }
+            ],
+            "fields": {}
+          }
+        },
+        {
           "id": "organize",
           "options": {
             "excludeByName": {
               "Time": true
             },
-            "indexByName": {
-              "Time": 3,
-              "Value #A": 2,
-              "client": 1,
-              "domain": 0
-            },
+            "indexByName": {},
             "renameByName": {
               "Value #A": "Count",
               "client": "Client",
