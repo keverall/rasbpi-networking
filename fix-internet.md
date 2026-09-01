@@ -17,15 +17,25 @@ three try to grab the default route and knock out real internet. Disabling
 
 ## PERMANENT FIX (run once, needs sudo)
 
-Stop any active tunnels and disable auto-connect on the 3 WireGuard profiles
-so they never start on boot:
+Stop any active tunnels, disable auto-connect on the 3 WireGuard profiles
+so they never start on boot, and turn OFF the kill switch (it injects
+persistent iptables/nft rules that block all traffic when the VPN is down):
 
 ```bash
-sudo nmcli connection down wg-CH-UK-2 wg-CH-US-3 wg-is-uk-1 2>/dev/null
+# kill switch config is owned by the daemon, so start it first
+sudo systemctl start proton.VPN.service
+# disable auto-connect on the 3 WireGuard profiles so they never start on boot
 sudo nmcli connection modify wg-CH-UK-2 connection.autoconnect no
 sudo nmcli connection modify wg-CH-US-3 connection.autoconnect no
 sudo nmcli connection modify wg-is-uk-1 connection.autoconnect no
+# kill switch adds iptables/nft rules that break connectivity when VPN is off
+protonvpn config set kill-switch off
+# stop + keep the daemon disabled
 sudo systemctl disable --now proton.VPN.service
+# flush any leftover firewall rules the kill switch left behind
+sudo nft flush ruleset
+sudo iptables -F
+sudo ip6tables -F
 ```
 
 Verify nothing auto-connects:
@@ -77,6 +87,8 @@ sleep 3
 busctl list | grep -E "proton\."
 sudo nft flush ruleset
 sudo iptables -F
+sudo ip6tables -F
+protonvpn config set kill-switch off
 ping -c 4 192.168.1.5
 ping -c 4 google.com
 ssh pi
