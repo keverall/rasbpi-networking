@@ -95,6 +95,19 @@ services:
     cpus: 0.2
     cpu_shares: 128
 
+  docker_exporter:
+    image: dlepaux/docker-exporter:latest
+    container_name: docker_exporter
+    network_mode: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: unless-stopped
+    # Lightweight: Docker container metrics (~9MB image, ~7MiB RAM, ARM64/cgroup-v2)
+    mem_reservation: 16m
+    mem_limit: 64m
+    cpus: 0.1
+    cpu_shares: 128
+
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
