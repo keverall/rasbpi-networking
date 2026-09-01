@@ -98,11 +98,10 @@ services:
   docker_exporter:
     image: ghcr.io/dlepaux/docker-exporter:latest
     container_name: docker_exporter
+    user: '0'
     network_mode: host
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    group_add:
-      - docker
     restart: unless-stopped
     # Lightweight: Docker container metrics, cAdvisor-compatible names
     mem_reservation: 16m
