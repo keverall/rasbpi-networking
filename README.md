@@ -108,13 +108,13 @@ When you type a website like example.com into your browser, the request follows 
   - `unbound_exporter` — Unbound metrics, ar51an/unbound-exporter (port 9167; requires `extended-statistics: yes` in unbound)
   - `node_exporter` — host/system metrics (port 9100)
   - `raspi_exporter` — Raspberry Pi thermal/voltage metrics (port 9779)
+  - `docker_exporter` — Docker container metrics, cAdvisor-compatible names (port 9713). See [dlepaux/docker-exporter](https://github.com/dlepaux/docker-exporter).
   - `prometheus` — scrapes the exporters and stores metrics (port 9090)
   - `grafana` — dashboards (port 3000)
   - `alertmanager` — routes alerts from Prometheus (port 9093)
   - `loki` + `promtail` — log aggregation
 
-> NOTE: `cAdvisor` and `Uptime Kuma` are **not** part of this stack. They were
-> removed to reduce Pi CPU load; references to them in older notes are stale.
+> NOTE: `cAdvisor` is **not** part of this stack. We use [`docker-exporter`](https://github.com/dlepaux/docker-exporter) instead: it provides cAdvisor-compatible metric names, fixes the zero-memory bug on Raspberry Pi 5 (ARM64 + cgroup v2), and uses far less RAM/CPU. `Uptime Kuma` was also removed to reduce Pi CPU load; references to it in older notes are stale.
 
 ### Dashboards
 
@@ -155,6 +155,7 @@ When you type a website like example.com into your browser, the request follows 
 - `doc/pihole-exporter.md` — the `pihole_exporter` service.
 - `doc/node-exporter.md` — host metrics via `node_exporter`.
 - `doc/adding-raspi-exporter.md` — history of adding `raspi_exporter`.
+- `doc/docker-exporter.md` — `docker_exporter` service, why it replaces cAdvisor, and compatible Grafana dashboards.
 - `doc/unbound-permission-fixes.md` — Unbound logging/exporter fixes.
 - `doc/sys time warning fix.md` — fixing the `CAP_SYS_TIME` warning.
 - `doc/network-tools-guide.md` — LAN diagnostic tools (run from a desktop, not

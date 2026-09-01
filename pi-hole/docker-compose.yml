@@ -96,13 +96,13 @@ services:
     cpu_shares: 128
 
   docker_exporter:
-    image: keramss/docker-exporter:latest
+    image: ghcr.io/dlepaux/docker-exporter:latest
     container_name: docker_exporter
     network_mode: host
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     restart: unless-stopped
-    # Lightweight: Docker container metrics (<1MB image, <2MB RAM)
+    # Lightweight: Docker container metrics, cAdvisor-compatible names
     mem_reservation: 16m
     mem_limit: 64m
     cpus: 0.1
