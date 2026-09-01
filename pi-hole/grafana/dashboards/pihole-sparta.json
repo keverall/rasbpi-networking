@@ -50,7 +50,7 @@
         "builtIn": 1,
         "datasource": {
           "type": "prometheus",
-          "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+          "uid": "PBFA97CFB590B2093"
         },
         "enable": true,
         "hide": true,
@@ -98,7 +98,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -168,7 +168,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+            "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
           "expr": "pihole_status",
@@ -186,7 +186,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -234,7 +234,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+            "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
           "expr": "pihole_unique_clients",
@@ -251,7 +251,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -303,7 +303,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+            "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
           "exemplar": true,
@@ -322,7 +322,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -368,7 +368,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+            "uid": "PBFA97CFB590B2093"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -391,7 +391,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -437,7 +437,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+            "uid": "PBFA97CFB590B2093"
           },
           "disableTextWrap": false,
           "editorMode": "builder",
@@ -461,7 +461,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -521,7 +521,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+            "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
           "expr": "pihole_unique_domains",
@@ -538,7 +538,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -587,7 +587,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+            "uid": "PBFA97CFB590B2093"
           },
           "exemplar": true,
           "expr": "pihole_domains_being_blocked",
@@ -604,7 +604,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -709,7 +709,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+            "uid": "PBFA97CFB590B2093"
           },
           "expr": "pihole_dns_queries_all_types",
           "format": "time_series",
@@ -724,7 +724,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -781,7 +781,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+            "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -800,7 +800,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -862,7 +862,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+            "uid": "PBFA97CFB590B2093"
           },
           "expr": "pihole_reply",
           "format": "time_series",
@@ -877,7 +877,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -940,7 +940,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+            "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -959,7 +959,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+        "uid": "PBFA97CFB590B2093"
       },
       "description": "",
       "fieldConfig": {
@@ -1020,7 +1020,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+            "uid": "PBFA97CFB590B2093"
           },
           "disableTextWrap": false,
           "editorMode": "code",
@@ -1043,7 +1043,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -1106,7 +1106,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+            "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -1125,7 +1125,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -1214,7 +1214,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+            "uid": "PBFA97CFB590B2093"
           },
           "expr": "pihole_queries_cached",
           "format": "time_series",
@@ -1225,7 +1225,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+            "uid": "PBFA97CFB590B2093"
           },
           "expr": "pihole_queries_forwarded",
           "format": "time_series",
@@ -1240,7 +1240,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -1342,7 +1342,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+            "uid": "PBFA97CFB590B2093"
           },
           "expr": "pihole_ads_percentage_today",
           "format": "time_series",
@@ -1357,7 +1357,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -1414,7 +1414,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+            "uid": "PBFA97CFB590B2093"
           },
           "expr": "pihole_forward_destinations",
           "format": "time_series",
@@ -1429,7 +1429,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -1531,7 +1531,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+            "uid": "PBFA97CFB590B2093"
           },
           "expr": "pihole_ads_blocked_today",
           "format": "time_series",
@@ -1546,7 +1546,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+        "uid": "PBFA97CFB590B2093"
       },
       "fieldConfig": {
         "defaults": {
@@ -1629,7 +1629,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "b235ddcc-9250-49ef-873a-b96cd6972bc2"
+            "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
           "exemplar": false,
