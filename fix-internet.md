@@ -34,6 +34,31 @@ sudo iptables -F
 sudo ip6tables -F
 ```
 
+### THE REAL PERMANENT FIX — mask the Proton daemon
+
+`connection.autoconnect no` on the 3 WireGuard profiles is NOT enough. The
+`proton.VPN.service` daemon (once running) bypasses NetworkManager's
+`autoconnect` flag and explicitly brings the profiles up itself via its own
+"connect on launch / auto-connect" behaviour. That is why the connections keep
+coming back and killing the default route. Mask the service so nothing — boot,
+the GUI app, or a D-Bus activation — can ever start it automatically:
+
+```bash
+# kill it if it is somehow running, then mask so it cannot auto-start
+sudo systemctl stop proton.VPN.service
+sudo systemctl disable proton.VPN.service
+sudo systemctl mask proton.VPN.service
+
+# confirm
+systemctl is-enabled proton.VPN.service   # -> masked
+systemctl is-active  proton.VPN.service   # -> inactive
+nmcli -g NAME,AUTOCONNECT connection show | grep -E "wg-"
+# every wg-* line should show 'no'
+```
+
+Masking is the guarantee: even if the Proton GUI is opened, the daemon can't
+start, so it can't steal the default route.
+
 ### Disable the kill switch
 
 The kill switch injects persistent iptables/nft rules that block ALL traffic
@@ -74,7 +99,11 @@ enabled — that setting re-writes `autoconnect=yes` back onto the connection.
 
 ### CLI (choose one profile)
 
+Because the daemon is masked, unmask + start it first, then connect:
+
 ```bash
+sudo systemctl unmask proton.VPN.service
+sudo systemctl start proton.VPN.service
 protonvpn connect          # interactive profile picker
 # or bring a specific NM profile up directly:
 nmcli connection up wg-CH-UK-2
@@ -86,6 +115,9 @@ To disconnect:
 protonvpn disconnect
 # or:
 nmcli connection down wg-CH-UK-2
+# then re-mask so it can't auto-start again and break internet:
+sudo systemctl stop proton.VPN.service
+sudo systemctl mask proton.VPN.service
 ```
 
 ### CachyOS NetManager GUI
