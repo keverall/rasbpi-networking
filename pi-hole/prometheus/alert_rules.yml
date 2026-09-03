@@ -41,6 +41,48 @@ groups:
         annotations:
           summary: "Container down"
 
+  - name: pi_health_alerts
+    rules:
+      # Processes stuck in uninterruptible sleep (D state) = I/O-blocked / "locked".
+      - alert: LockedProcesses
+        expr: node_procs_blocked > 5
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Processes locked in uninterruptible sleep (D-state)"
+          description: "{{ $value }} processes are stuck in D-state (node_procs_blocked > 5) for 3m. Usually indicates I/O or filesystem stall. Check the Pi diagnostics dashboard/logs."
+
+      # Load average relative to available CPU cores (2x cores = saturated).
+      - alert: HighLoadAverage
+        expr: node_load1 > count by() (node_cpu_seconds_total{mode="idle"}) * 2
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High load average on pi-networking"
+          description: "Load average ({{ $value | printf \"%.2f\" }}) exceeds 2x CPU cores for 10m."
+
+      # Near out-of-memory (absolute available memory, complements HighMemoryUsage).
+      - alert: LowMemoryAvailable
+        expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 < 10
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Memory nearly exhausted on pi-networking"
+          description: "Available memory below 10% for 5m. Risk of OOM kill / lockup."
+
+      # Thermal throttling risk; sustained high SoC temperature causes slowdowns.
+      - alert: ThermalThrottle
+        expr: raspi_cpu_temp_celsius > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Raspberry Pi SoC temperature high"
+          description: "CPU temperature {{ $value }}C > 80C for 5m. Thermal throttling likely; check cooling."
+
   - name: stack_update_alerts
     rules:
       - alert: StackUpdateFailed

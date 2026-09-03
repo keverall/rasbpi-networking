@@ -244,6 +244,8 @@ services:
     - ./promtail/config.yml:/etc/promtail/config.yml
     # Unbound logs to file via logfile directive; read by promtail job "unbound"
     - ./unbound/var/log:/var/log/unbound:ro
+    # Pi diagnostics snapshots written by capture-diagnostics.timer (host path)
+    - /home/pi-networking/logs/pi-diagnostics:/var/log/pi-diagnostics:ro
     # Docker container logs: mount container log directory so promtail can
     # read stdout/stderr JSON logs from all containers via static_configs
     # (Docker container log files are root:root 0640, hence user: '0' above)

@@ -1,0 +1,7 @@
+[Unit]
+Description=Capture Pi diagnostics snapshot to log
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/repos/rasbpi-networking
+ExecStart=%h/repos/rasbpi-networking/scripts/capture-diagnostics.sh
