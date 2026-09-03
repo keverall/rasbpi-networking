@@ -79,3 +79,12 @@ scrape_configs:
         labels:
           app: pi-diagnostics
           __path__: /var/log/pi-diagnostics/*.log
+    pipeline_stages:
+      # Pin every line to the snapshot's own timestamp from the header line so
+      # promtail doesn't try to parse dates inside the snapshot (e.g. dmesg)
+      # as entry timestamps and get rejected for being "too far behind".
+      - regex:
+          expression: '^=== Pi diagnostics snapshot: (?P<ts>.+) ===$'
+      - timestamp:
+          source: ts
+          format: RFC3339

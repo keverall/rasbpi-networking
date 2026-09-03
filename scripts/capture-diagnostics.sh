@@ -26,7 +26,7 @@ OUT="$OUT_DIR/diag-$TS.log"
   echo "--- D-state (uninterruptible / locked) processes ---"
   ps -eo pid,stat,comm 2>/dev/null | awk 'NR==1 || $2 ~ /D/'
   echo "--- btop ---"; command -v btop >/dev/null 2>&1 && btop --utf-force -b -n 1 2>/dev/null || echo "btop not installed"
-  echo "--- dmesg tail ---"; dmesg -T 2>/dev/null | tail -25
+  echo "--- dmesg tail ---"; dmesg 2>/dev/null | tail -25
   echo "--- disk usage ---"; df -h / /boot 2>/dev/null
   echo "=== end snapshot ==="
 } >"$OUT" 2>&1
