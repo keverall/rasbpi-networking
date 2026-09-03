@@ -16,8 +16,18 @@ ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no -o BatchMode=yes pi-network
 
 Pulls latest versions of externally hosted images (Prometheus, Grafana, Node Exporter, Pi-hole Exporter).
 
+The four custom images (`local/pihole`, `local/unbound-rpi`, `local/unbound_exporter`,
+`local/raspi_exporter`) are built locally and have `pull_policy: build`, so
+`docker compose pull` automatically skips them instead of trying to fetch them
+from a registry.
+
 ```bash
 ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker compose pull && docker compose up -d"
+```
+
+If you only want to pull specific upstream services:
+```bash
+ssh pi-networking@192.168.1.5 "cd ~/repos/rasbpi-networking/pi-hole && docker compose pull prometheus grafana node_exporter pihole_exporter alertmanager loki promtail docker_exporter"
 ```
 
 ## Rebuild All Local Images
