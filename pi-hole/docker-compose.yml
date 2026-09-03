@@ -209,6 +209,18 @@ services:
     cpus: 0.2
     cpu_shares: 128
 
+  pushgateway:
+    image: prom/pushgateway:latest
+    container_name: pushgateway
+    network_mode: host
+    restart: unless-stopped
+    # Receives batch-job metrics from the weekly update script so Prometheus
+    # can alert on update success/failure and show upgraded images.
+    mem_reservation: 16m
+    mem_limit: 64m
+    cpus: 0.1
+    cpu_shares: 64
+
   loki:
     image: grafana/loki:latest
     container_name: loki

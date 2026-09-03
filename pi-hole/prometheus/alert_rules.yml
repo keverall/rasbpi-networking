@@ -40,3 +40,32 @@ groups:
           severity: warning
         annotations:
           summary: "Container down"
+
+  - name: stack_update_alerts
+    rules:
+      - alert: StackUpdateFailed
+        expr: stack_update_run_outcome{outcome="failure"} == 1
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Weekly Docker stack update failed"
+          description: "The Saturday stack update failed at the '{{ $labels.reason }}' step. Check logs/update-stack.log on pi-networking."
+
+      - alert: StackUpdateMissed
+        expr: time() - max(stack_update_last_success_ts) > 8 * 86400
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "Weekly Docker stack update missed"
+          description: "No successful stack update in over 8 days. Expected weekly on Saturday ~04:00."
+
+      - alert: StackUpdateSucceeded
+        expr: stack_update_run_outcome{outcome="success"} == 1
+        for: 0m
+        labels:
+          severity: info
+        annotations:
+          summary: "Weekly Docker stack update succeeded"
+          description: "The stack update completed. Upgraded images are listed on the 'Stack Update' Grafana dashboard."
