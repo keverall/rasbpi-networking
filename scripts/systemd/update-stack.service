@@ -1,7 +1,5 @@
 [Unit]
 Description=Weekly Docker stack update (git pull, rebuild, up)
-After=docker.service
-Requires=docker.service
 
 [Service]
 Type=oneshot
