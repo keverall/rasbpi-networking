@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Docker stack update every Saturday at 04:00
+
+[Timer]
+OnCalendar=Sat *-*-* 04:00:00
+Persistent=true
+RandomizedDelaySec=900
+
+[Install]
+WantedBy=timers.target
