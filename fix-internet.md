@@ -38,6 +38,60 @@ ping -c 4 google.com
 ssh pi  
 ```
 
+## Crowdsec goes wonky again then:
+
+Symptom after a `crowdsec` apt upgrade: `sudo cscli hub list` prints dozens of
+`Ignoring file /etc/crowdsec/parsers|scenarios/...: lstat /var/lib/crowdsec/hub/...: no such file or directory`, and CrowdSec silently stops parsing anything.
+
+Root cause: the 1.8.x package no longer bundles hub content — it is downloaded
+separately by `cscli hub update`/`upgrade` (run by the postinst's `hubupdate.sh`
+and the daily `crowdsec-hubupdate.timer`). The postinst **skips** that download
+when it thinks `acquis.yaml` is user-modified, so the parsers/scenarios ship as
+dangling symlinks and never get their backing files.
+
+The fix that is already in place (survives reboots, lives on the Pi's filesystem,
+not in this repo):
+- collections are installed in cscli's `hub_dir` = `/etc/crowdsec/hub/`
+  (kept current automatically by `crowdsec-hubupdate.timer`, already `enabled`).
+- a manual bridge symlink `/usr/share/crowdsec/hub -> /etc/crowdsec/hub` so the
+  package's enabled symlinks (`/etc/crowdsec/parsers|scenarios/*` ->
+  `/var/lib/crowdsec/hub/*` -> `/usr/share/crowdsec/hub/*`) resolve to real files.
+
+If a future upgrade breaks it again:
+
+1. Re-establish the bridge (harmless if it already exists):
+   ```bash
+   sudo ln -sfn /etc/crowdsec/hub /usr/share/crowdsec/hub
+   ```
+2. Re-download + re-enable everything already installed:
+   ```bash
+   sudo cscli hub update
+   sudo cscli hub upgrade
+   sudo cscli parsers install crowdsecurity/whitelists   # s02-enrich/whitelists.yaml
+   ```
+3. Apply without a full restart, then confirm:
+   ```bash
+   sudo systemctl reload crowdsec.service
+   sudo cscli hub list     # must show 0 "Ignoring file" warnings
+   ```
+
+Full re-install fallback (the exact set the package expects):
+```bash
+sudo cscli collections install crowdsecurity/linux crowdsecurity/sshd crowdsecurity/nginx crowdsecurity/apache2 crowdsecurity/base-http-scenarios crowdsecurity/http-cve crowdsecurity/whitelist-good-actors
+```
+
+Caveat: if a future `crowdsec` package starts shipping `/usr/share/crowdsec/hub`
+as a *real* directory, it will collide with the bridge symlink. In that case
+remove the symlink (`sudo rm /usr/share/crowdsec/hub`), let the package own that
+dir, then run the `cscli hub update`/`upgrade` steps above — cscli's real store
+remains `/etc/crowdsec/hub` regardless.
+
+If you want to confirm it's ingesting, give it a moment then check acquisition:
+
+```bash
+sudo cscli metrics
+```
+
 ## Root cause
 
 `proton.VPN.service` may be disabled, but the Proton VPN app created 3
