@@ -53,4 +53,7 @@ pi-hole/etc-pihole/dnsmasq.conf
 pi-hole/unbound/*.pid
 pi-hole/unbound/var/log/*.log
 pi-hole/uptime-kuma/kuma.db*
+
+# Runtime log written by scripts/update-stack.sh (weekly stack updater)
+logs/
 AGENTS.md
