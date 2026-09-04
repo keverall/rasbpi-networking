@@ -1,7 +1,18 @@
 # fix internet
 
+- [fix internet](#fix-internet)
+  - [Recovery (if internet dies again only on the PI)](#recovery-if-internet-dies-again-only-on-the-pi)
+  - [Crowdsec goes wonky again then:](#crowdsec-goes-wonky-again-then)
+  - [Root cause](#root-cause)
+  - [PERMANENT FIX (run once, needs sudo)](#permanent-fix-run-once-needs-sudo)
+    - [THE REAL PERMANENT FIX — mask the Proton daemon](#the-real-permanent-fix--mask-the-proton-daemon)
+    - [Disable the kill switch](#disable-the-kill-switch)
+  - [Connect manually when you want the VPN](#connect-manually-when-you-want-the-vpn)
+    - [CLI (choose one profile)](#cli-choose-one-profile)
+    - [CachyOS NetManager GUI](#cachyos-netmanager-gui)
 
-## Recovery (if internet dies again)
+
+## Recovery (if internet dies again only on the PI)
 
 ```bash
 sudo nmcli connection down wg-CH-UK-2 wg-CH-US-3 wg-is-uk-1 2>/dev/null  
@@ -51,31 +62,48 @@ dangling symlinks and never get their backing files.
 
 The fix that is already in place (survives reboots, lives on the Pi's filesystem,
 not in this repo):
+
 - collections are installed in cscli's `hub_dir` = `/etc/crowdsec/hub/`
   (kept current automatically by `crowdsec-hubupdate.timer`, already `enabled`).
 - a manual bridge symlink `/usr/share/crowdsec/hub -> /etc/crowdsec/hub` so the
   package's enabled symlinks (`/etc/crowdsec/parsers|scenarios/*` ->
   `/var/lib/crowdsec/hub/*` -> `/usr/share/crowdsec/hub/*`) resolve to real files.
 
-If a future upgrade breaks it again:
+If a future upgrade breaks it again:- [fix internet](#fix-internet)
+- [fix internet](#fix-internet)
+  - [Recovery (if internet dies again only on the PI)](#recovery-if-internet-dies-again-only-on-the-pi)
+  - [Crowdsec goes wonky again then:](#crowdsec-goes-wonky-again-then)
+  - [Root cause](#root-cause)
+  - [PERMANENT FIX (run once, needs sudo)](#permanent-fix-run-once-needs-sudo)
+    - [THE REAL PERMANENT FIX — mask the Proton daemon](#the-real-permanent-fix--mask-the-proton-daemon)
+    - [Disable the kill switch](#disable-the-kill-switch)
+  - [Connect manually when you want the VPN](#connect-manually-when-you-want-the-vpn)
+    - [CLI (choose one profile)](#cli-choose-one-profile)
+    - [CachyOS NetManager GUI](#cachyos-netmanager-gui)
 
 1. Re-establish the bridge (harmless if it already exists):
-   ```bash
+
+```bash
    sudo ln -sfn /etc/crowdsec/hub /usr/share/crowdsec/hub
    ```
-2. Re-download + re-enable everything already installed:
+
+3. Re-download + re-enable everything already installed:
+
    ```bash
    sudo cscli hub update
    sudo cscli hub upgrade
    sudo cscli parsers install crowdsecurity/whitelists   # s02-enrich/whitelists.yaml
    ```
-3. Apply without a full restart, then confirm:
+
+4. Apply without a full restart, then confirm:
+
    ```bash
    sudo systemctl reload crowdsec.service
    sudo cscli hub list     # must show 0 "Ignoring file" warnings
    ```
 
 Full re-install fallback (the exact set the package expects):
+
 ```bash
 sudo cscli collections install crowdsecurity/linux crowdsecurity/sshd crowdsecurity/nginx crowdsecurity/apache2 crowdsecurity/base-http-scenarios crowdsecurity/http-cve crowdsecurity/whitelist-good-actors
 ```
@@ -97,7 +125,7 @@ sudo cscli metrics
 `proton.VPN.service` may be disabled, but the Proton VPN app created 3
 NetworkManager WireGuard connections that have `autoconnect = yes`:
 
-```
+```text
 wg-CH-UK-2
 wg-CH-US-3
 wg-is-uk-1
@@ -170,6 +198,7 @@ sudo grep killswitch /root/.config/Proton/VPN/settings.json 2>/dev/null
 ```
 
 If you are signed in and the CLI works, the equivalent is:
+
 ```bash
 sudo systemctl start proton.VPN.service
 protonvpn config set kill-switch off
