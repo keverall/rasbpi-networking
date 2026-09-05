@@ -30,6 +30,7 @@ desktop checkout.
 ## APPLIED (safe, offline — no packages required)
 
 ### 0. Boot robustness (fixes emergency mode / no-network)
+
 - `/etc/fstab` `/mnt/ssd` line: added `nofail,x-systemd.device-timeout=30s`. An external
   SSD with no `nofail` dropped the Pi to **emergency mode** when unplugged or slow to
   spin up; now it is optional and time-bounded.
@@ -41,14 +42,19 @@ desktop checkout.
   Pi keeps a single default route via `eth0` and avoids the dual-gateway conflict.
 
 ### 1. Hardware watchdog (auto-reboot on hang)
+
 - `/boot/config.txt` (Pi boot partition):
+
   ```ini
   dtparam=watchdog=on
   ```
+
 - `/etc/systemd/system.conf`:
+
   ```ini
   RuntimeWatchdogSec=30
   ```
+
   systemd pets the hardware watchdog; if it stops for 30s the Pi reboots.
   No `watchdog` package needed — systemd's built-in support is used.
   **Caveat:** if the Pi appears to reboot in a loop (truly hung, e.g. a stalled mount),
@@ -56,34 +62,44 @@ desktop checkout.
   and `dtparam=watchdog=on` in `config.txt` to recover.
 
 ### 2. Kernel panic → reboot
+
 - `/etc/sysctl.d/99-hardening.conf`:
+
   ```sysctl
   kernel.panic = 10
   kernel.panic_on_oops = 1
   vm.swappiness = 1
   ```
+
   (`vm.swappiness=1`: the Pi uses `zram` swap in RAM, so keep paging to a minimum.)
 
 ### 3. SSH key-only
+
 - `/etc/ssh/sshd_config`:
+
   ```ssh
   PermitRootLogin prohibit-password
   PubkeyAuthentication yes
   PasswordAuthentication no
   KbdInteractiveAuthentication no
   ```
+
   The `keverall` user already has keys in `~/.ssh/authorized_keys`, so this
   does not lock anyone out. `root` has no key → stays disabled.
 
 ### 4. Root failsafe (OS now lives on the USB SSD)
+
 - `/etc/fstab` root line (SSD `sda2`):
+
   ```fstab
   PARTUUID=86d791ad-02  /  ext4  defaults,noatime,errors=remount-ro  0  1
   ```
+
   A detected corruption remounts read-only instead of wedging the box. (Originally
   the SD's `0ca05afd-02`; the OS was migrated to the SSD — see §5.)
 
 ### 5. OS on USB SSD (boot from USB; SD card removed)
+
 - The OS was cloned from the SD to the USB SSD and the Pi now **boots from the SSD
   with no SD card installed**, eliminating the SD-card death risk (failure mode #2).
 - Reproducible method: `rsync` the SD's boot partition (`/boot/firmware`) → SSD
@@ -115,6 +131,7 @@ cat /proc/sys/kernel/panic       # should be 10
 cat /etc/ssh/sshd_config | grep -iE 'PasswordAuthentication|PermitRootLogin'
 mount | grep ' / '                # should show errors=remount-ro
 ```
+
 Test an **SSH key** login before trusting password-off.
 
 ---
@@ -122,6 +139,7 @@ Test an **SSH key** login before trusting password-off.
 ## RECOMMENDED (not yet done)
 
 ### High value
+
 - **Router DHCP reservation** for `192.168.1.5` (belt-and-suspenders with the
   static IP) so the address is stable even if DHCP reassigned.
 - **Bind Pi-hole explicitly** to `192.168.1.5` (it currently listens on all
@@ -129,6 +147,7 @@ Test an **SSH key** login before trusting password-off.
   `LOCAL` is safer now that the IP is static).
 
 ### Nice to have
+
 - `unattended-upgrades` for crowdsec / Pi-hole security patches.
 - `fail2ban` (a guide already lives in the repo) for SSH/HTTP brute-force.
 - Bound journald SD writes: in `/etc/systemd/journald.conf` set
@@ -139,6 +158,7 @@ Test an **SSH key** login before trusting password-off.
 ---
 
 ## Notes
+
 - These OS changes are intentionally **outside git**; this document is the
   reproduction record. If the Pi is re-imaged, re-apply the APPLIED section.
 - The Pi-hole config files (`pihole.toml`, `dnsmasq.conf`) and runtime data
