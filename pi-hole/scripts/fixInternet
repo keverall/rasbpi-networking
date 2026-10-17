@@ -4,5 +4,5 @@
 # behaviour stays in sync with the repo.
 set -Eeuo pipefail
 
-script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+script_dir="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
 exec "$script_dir/restore-connectivity.sh"
