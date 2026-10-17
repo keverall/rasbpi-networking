@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# fixInternet — run the Pi-hole connectivity recovery script from anywhere.
+# The real work lives in pi-hole/scripts/restore-connectivity.sh so the
+# behaviour stays in sync with the repo.
+set -Eeuo pipefail
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec "$script_dir/restore-connectivity.sh"
