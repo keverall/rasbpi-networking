@@ -31,4 +31,3 @@ systemctl is-enabled proton.VPN.service
 
 ping -c 4 google.com  
 
-ssh pi
