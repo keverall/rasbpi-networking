@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+if (( EUID == 0 )); then
+    printf 'Do not run this script with sudo; run it as your normal user:\n' >&2
+    printf '  ./pi-hole/scripts/restore-connectivity.sh\n' >&2
+    exit 2
+fi
+
 diagnostic_log="/tmp/restore-connectivity-$(date +%Y%m%d-%H%M%S).log"
 exec > >(tee "$diagnostic_log") 2>&1
 
@@ -40,16 +46,6 @@ if sudo test -f "$root_config"; then
     printf 'Updated %s\n' "$root_config"
 else
     printf 'No root Proton configuration found\n'
-fi
-
-if command -v protonvpn >/dev/null 2>&1; then
-    if protonvpn config set kill-switch off; then
-        printf 'Proton kill switch disabled\n'
-    else
-        printf 'Warning: Proton CLI could not change the kill-switch setting\n' >&2
-    fi
-else
-    printf 'Warning: protonvpn CLI is not installed\n' >&2
 fi
 
 step "Clearing stale firewall rules"
